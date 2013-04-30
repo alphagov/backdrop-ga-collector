@@ -1,0 +1,2 @@
+gapy==0.0.2
+python-dateutil==2.1
