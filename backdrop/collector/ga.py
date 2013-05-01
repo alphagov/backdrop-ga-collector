@@ -6,6 +6,7 @@ import requests
 import json
 from backdrop import load_json, get_credentials
 
+MONDAY = 0
 
 TIMEZONE = pytz.timezone("Europe/London")
 
@@ -46,7 +47,7 @@ def send_data(data, config):
         data=json.dumps(data, cls=MyEncoder),
         headers={"Authorization": "Bearer " + config["token"]}
     )
-    
+
     print r.status_code
 
 
@@ -69,6 +70,17 @@ def build_document(item, start_date, end_date):
     return dict( period_properties + dimensions + metrics )
 
 
+def period_range(start_date, end_date):
+    if start_date > end_date:
+        raise ValueError
+    if start_date.weekday != MONDAY:
+        start_date = start_date - timedelta(days=start_date.weekday())
+    period = timedelta(days=7)
+    while start_date <= end_date:
+        yield (start_date, start_date + timedelta(days=6))
+        start_date += period
+
+
 def run(config_path, start_date, end_date):
     config = load_json(config_path)
 
@@ -79,8 +91,11 @@ def run(config_path, start_date, end_date):
 
     client = _create_client(credentials)
 
-    response = query_ga(client, config["query"], start_date, end_date)
+    documents = []
 
-    documents = [ build_document(item, start_date, end_date) for item in response ]
+    for start, end in period_range(start_date, end_date):
+        response = query_ga(client, config["query"], start, end)
+
+        documents +=[ build_document(item, start, end) for item in response ]
 
     send_data(documents, config["target"])
