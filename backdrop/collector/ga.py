@@ -2,15 +2,24 @@ from datetime import time, timedelta, datetime
 from dateutil import parser
 import gapy
 import pytz
+import requests
+import json
 from backdrop import load_json, get_credentials
 
 
 TIMEZONE = pytz.timezone("Europe/London")
 
 
-def _create_client():
-    credentials = get_credentials()
+class MyEncoder(json.JSONEncoder):
 
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return str(obj.timetuple())
+
+        return json.JSONEncoder.default(self, obj)
+
+
+def _create_client(credentials):
     return gapy.service_account(
         credentials['ACCOUNT_NAME'],
         private_key_path=credentials['PRIVATE_KEY'],
@@ -28,9 +37,17 @@ def query_ga(client, config, start_date, end_date):
     )
 
 
-def send_data(data):
+def send_data(data, config):
     for datum in data:
         print datum
+
+    r = requests.post(
+        config["url"],
+        data=json.dumps(data, cls=MyEncoder),
+        headers={"Authorization": "Bearer " + config["token"]}
+    )
+    
+    print r.status_code
 
 
 def _to_datetime(start_date):
@@ -58,10 +75,12 @@ def run(config_path, start_date, end_date):
     start_date = parser.parse(start_date)
     end_date = parser.parse(end_date)
 
-    client = _create_client()
+    credentials = get_credentials()
 
-    response = query_ga(client, config, start_date, end_date)
+    client = _create_client(credentials)
+
+    response = query_ga(client, config["query"], start_date, end_date)
 
     documents = [ build_document(item, start_date, end_date) for item in response ]
 
-    send_data(documents)
+    send_data(documents, config["target"])
