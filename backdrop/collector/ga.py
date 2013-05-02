@@ -1,27 +1,18 @@
-from datetime import timedelta, datetime
+from datetime import timedelta
 import json
 import logging
 
 from requests.exceptions import HTTPError
 from dateutil import parser
 import gapy
-from gapy.error import GapyError
-import pytz
 import requests
 
 from backdrop import load_json, get_credentials
 from backdrop.collector.datetimeutil import to_datetime, period_range, to_utc
+from backdrop.collector.jsonencoder import JSONEncoder
 
 
 logging.basicConfig(level=logging.DEBUG)
-
-
-class MyEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, datetime):
-            return str(obj.timetuple())
-
-        return json.JSONEncoder.default(self, obj)
 
 
 def _create_client(credentials):
@@ -44,12 +35,11 @@ def query_ga(client, config, start_date, end_date):
 
 def send_data(data, config):
     url = config["url"]
-    data = json.dumps(data, cls=MyEncoder)
+    data = json.dumps(data, cls=JSONEncoder)
     headers = {
         "Authorization": "Bearer " + config["token"]
     }
-
-    response = requests.post(url, data=data, headers=headers )
+    response = requests.post(url, data=data, headers=headers)
     response.raise_for_status()
 
 
@@ -95,7 +85,7 @@ def run(config_path, start_date, end_date):
         logging.exception("Unable to send data to target")
         exit(-3)
 
-    except GapyError:
+    except gapy.error.GapyError:
         logging.exception("Unable to retrieve data from Google Analytics")
         exit(-2)
 

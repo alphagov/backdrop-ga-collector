@@ -4,11 +4,7 @@ import mock
 from nose.tools import *
 import pytz
 from backdrop.collector.ga import query_ga, build_document, period_range, data_id
-
-
-def dt(year, month, day, hours, minutes, seconds, tz):
-    _dt = datetime(year, month, day, hours, minutes, seconds)
-    return pytz.timezone(tz).localize(_dt)
+from tests.backdrop.collector import dt
 
 
 def test_query_ga_with_empty_response():
