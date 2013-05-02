@@ -1,18 +1,21 @@
 from datetime import time, timedelta, datetime
 from dateutil import parser
 import gapy
+from gapy.error import GapyError
 import pytz
 import requests
 import json
 from backdrop import load_json, get_credentials
+import logging
 
 MONDAY = 0
 
 TIMEZONE = pytz.timezone("Europe/London")
 
+logging.basicConfig(level=logging.DEBUG)
+
 
 class MyEncoder(json.JSONEncoder):
-
     def default(self, obj):
         if isinstance(obj, datetime):
             return str(obj.timetuple())
@@ -29,6 +32,7 @@ def _create_client(credentials):
 
 
 def query_ga(client, config, start_date, end_date):
+    # raise Exception
     return client.query.get(
         config["id"].replace("ga:", ""),
         start_date,
@@ -48,7 +52,8 @@ def send_data(data, config):
         headers={"Authorization": "Bearer " + config["token"]}
     )
 
-    print r.status_code
+    if (r.status_code != 200):
+        raise
 
 
 def _to_datetime(start_date):
@@ -67,7 +72,7 @@ def build_document(item, start_date, end_date):
     period_properties = _period_properties(end_date, start_date).items()
     dimensions = item.get("dimensions", {}).items()
     metrics = [(key, int(value)) for key, value in item["metrics"].items()]
-    return dict( period_properties + dimensions + metrics )
+    return dict(period_properties + dimensions + metrics)
 
 
 def period_range(start_date, end_date):
@@ -82,20 +87,30 @@ def period_range(start_date, end_date):
 
 
 def run(config_path, start_date, end_date):
-    config = load_json(config_path)
+    try:
+        config = load_json(config_path)
 
-    start_date = parser.parse(start_date)
-    end_date = parser.parse(end_date)
+        start_date = parser.parse(start_date)
+        end_date = parser.parse(end_date)
 
-    credentials = get_credentials()
+        credentials = get_credentials()
 
-    client = _create_client(credentials)
+        client = _create_client(credentials)
 
-    documents = []
+        documents = []
 
-    for start, end in period_range(start_date, end_date):
-        response = query_ga(client, config["query"], start, end)
+        for start, end in period_range(start_date, end_date):
+            response = query_ga(client, config["query"], start, end)
 
-        documents +=[ build_document(item, start, end) for item in response ]
+            documents += [build_document(item, start, end) for item in response]
 
-    send_data(documents, config["target"])
+        if any(documents):
+            send_data(documents, config["target"])
+
+    except GapyError:
+        logging.exception("Unable to retrieve data from Google Analytics")
+        exit(-2)
+
+    except:
+        logging.exception("Something bad happened!")
+        exit(-1)
