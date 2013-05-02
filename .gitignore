@@ -2,3 +2,5 @@
 credentials/
 config/
 .idea
+.coverage
+out/
