@@ -55,7 +55,6 @@ def test_build_document():
     assert_that(data, has_entry("visits", 12345))
 
 
-
 def test_build_document_no_dimensions():
     gapy_response = {
         "metrics": {"visits": "12345", "visitors": "5376"}

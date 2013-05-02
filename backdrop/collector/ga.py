@@ -83,7 +83,8 @@ def run(config_path, start_date, end_date):
         for start, end in period_range(start_date, end_date):
             response = query_ga(client, config["query"], start, end)
 
-            documents += [build_document(item, config["dataType"], start, end) for item in response]
+            documents += [build_document(item, config["dataType"], start, end)
+                          for item in response]
 
         if any(documents):
             send_data(documents, config["target"])
