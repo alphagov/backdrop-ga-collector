@@ -1,4 +1,5 @@
 from datetime import time, timedelta, datetime
+from apiclient.errors import HttpError
 from dateutil import parser
 import gapy
 from gapy.error import GapyError
@@ -32,7 +33,6 @@ def _create_client(credentials):
 
 
 def query_ga(client, config, start_date, end_date):
-    # raise Exception
     return client.query.get(
         config["id"].replace("ga:", ""),
         start_date,
@@ -43,17 +43,14 @@ def query_ga(client, config, start_date, end_date):
 
 
 def send_data(data, config):
-    for datum in data:
-        print datum
+    url = config["url"]
+    data = json.dumps(data, cls=MyEncoder)
+    headers = {
+        "Authorization": "Bearer " + config["token"]
+    }
 
-    r = requests.post(
-        config["url"],
-        data=json.dumps(data, cls=MyEncoder),
-        headers={"Authorization": "Bearer " + config["token"]}
-    )
-
-    if (r.status_code != 200):
-        raise
+    response = requests.post(url, data=data, headers=headers )
+    response.raise_for_status()
 
 
 def _to_datetime(start_date):
@@ -107,10 +104,14 @@ def run(config_path, start_date, end_date):
         if any(documents):
             send_data(documents, config["target"])
 
+    except HttpError:
+        logging.exception("Unable to send data to target")
+        exit(-3)
+
     except GapyError:
         logging.exception("Unable to retrieve data from Google Analytics")
         exit(-2)
 
-    except:
-        logging.exception("Something bad happened!")
+    except Exception as e:
+        logging.exception(e)
         exit(-1)
