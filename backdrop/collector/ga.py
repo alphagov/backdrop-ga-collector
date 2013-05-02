@@ -57,19 +57,22 @@ def _to_datetime(start_date):
     return TIMEZONE.localize(datetime.combine(start_date, time(0)))
 
 
-def _period_properties(end_date, start_date):
-    return {
+def data_id(data_type, timestamp):
+    return "%s_%s" % \
+           (data_type, timestamp.astimezone(pytz.UTC).strftime("%Y%m%d%H%M%S"))
+
+
+def build_document(item, data_type, start_date, end_date):
+    base_properties = {
+        "_id": data_id(data_type, _to_datetime(start_date)),
         "_start_at": _to_datetime(start_date),
         "_end_at": _to_datetime(end_date + timedelta(days=1)),
-        "_period": "week"
+        "_period": "week",
+        "dataType": data_type
     }
-
-
-def build_document(item, start_date, end_date):
-    period_properties = _period_properties(end_date, start_date).items()
     dimensions = item.get("dimensions", {}).items()
     metrics = [(key, int(value)) for key, value in item["metrics"].items()]
-    return dict(period_properties + dimensions + metrics)
+    return dict(base_properties.items() + dimensions + metrics)
 
 
 def period_range(start_date, end_date):
@@ -99,7 +102,7 @@ def run(config_path, start_date, end_date):
         for start, end in period_range(start_date, end_date):
             response = query_ga(client, config["query"], start, end)
 
-            documents += [build_document(item, start, end) for item in response]
+            documents += [build_document(item, config["dataType"], start, end) for item in response]
 
         if any(documents):
             send_data(documents, config["target"])
