@@ -1,0 +1,12 @@
+{
+    "dataType": "govuk_weekly_reach",
+    "query": {
+        "id": "ga:12345678",
+        "metrics": [ "visits", "visitors" ],
+        "dimensions": [ "year", "hour" ]
+    },
+    "target": {
+        "url": "http://write.backdrop.dev.gov.uk/foo",
+        "token": "foo-bearer-token"
+    }
+}
