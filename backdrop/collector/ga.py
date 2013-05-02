@@ -1,17 +1,17 @@
-from datetime import time, timedelta, datetime
-from apiclient.errors import HttpError
+from datetime import timedelta, datetime
+import json
+import logging
+
+from requests.exceptions import HTTPError
 from dateutil import parser
 import gapy
 from gapy.error import GapyError
 import pytz
 import requests
-import json
+
 from backdrop import load_json, get_credentials
-import logging
+from backdrop.collector.datetimeutil import to_datetime, period_range, to_utc
 
-MONDAY = 0
-
-TIMEZONE = pytz.timezone("Europe/London")
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -53,37 +53,21 @@ def send_data(data, config):
     response.raise_for_status()
 
 
-def _to_datetime(start_date):
-    return TIMEZONE.localize(datetime.combine(start_date, time(0)))
-
-
 def data_id(data_type, timestamp):
-    return "%s_%s" % \
-           (data_type, timestamp.astimezone(pytz.UTC).strftime("%Y%m%d%H%M%S"))
+    return "%s_%s" % (data_type, to_utc(timestamp).strftime("%Y%m%d%H%M%S"))
 
 
 def build_document(item, data_type, start_date, end_date):
     base_properties = {
-        "_id": data_id(data_type, _to_datetime(start_date)),
-        "_start_at": _to_datetime(start_date),
-        "_end_at": _to_datetime(end_date + timedelta(days=1)),
+        "_id": data_id(data_type, to_datetime(start_date)),
+        "_start_at": to_datetime(start_date),
+        "_end_at": to_datetime(end_date + timedelta(days=1)),
         "_period": "week",
         "dataType": data_type
     }
     dimensions = item.get("dimensions", {}).items()
     metrics = [(key, int(value)) for key, value in item["metrics"].items()]
     return dict(base_properties.items() + dimensions + metrics)
-
-
-def period_range(start_date, end_date):
-    if start_date > end_date:
-        raise ValueError
-    if start_date.weekday != MONDAY:
-        start_date = start_date - timedelta(days=start_date.weekday())
-    period = timedelta(days=7)
-    while start_date <= end_date:
-        yield (start_date, start_date + timedelta(days=6))
-        start_date += period
 
 
 def run(config_path, start_date, end_date):
@@ -107,7 +91,7 @@ def run(config_path, start_date, end_date):
         if any(documents):
             send_data(documents, config["target"])
 
-    except HttpError:
+    except HTTPError:
         logging.exception("Unable to send data to target")
         exit(-3)
 
