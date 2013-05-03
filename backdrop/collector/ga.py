@@ -4,7 +4,7 @@ import logging
 
 from requests.exceptions import HTTPError
 from dateutil import parser
-import gapy
+from gapy.client import from_private_key
 import requests
 
 from backdrop import load_json, get_credentials
@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 def _create_client(credentials):
-    return gapy.client_from_private_key(
+    return from_private_key(
         credentials['ACCOUNT_NAME'],
         private_key_path=credentials['PRIVATE_KEY'],
         storage_path=credentials['STORAGE_PATH']
