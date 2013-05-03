@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 def _create_client(credentials):
-    return gapy.service_account(
+    return gapy.client_from_private_key(
         credentials['ACCOUNT_NAME'],
         private_key_path=credentials['PRIVATE_KEY'],
         storage_path=credentials['STORAGE_PATH']
