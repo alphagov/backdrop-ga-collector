@@ -1,4 +1,4 @@
-from datetime import datetime, time, timedelta
+from datetime import datetime, time, timedelta, date
 import pytz
 
 
@@ -26,3 +26,7 @@ def period_range(start_date, end_date):
     while start_date <= end_date:
         yield (start_date, start_date + timedelta(days=6))
         start_date += period
+
+
+def a_week_ago():
+    return date.today() - timedelta(days=7)
