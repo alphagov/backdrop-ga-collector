@@ -1,10 +1,11 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 import json
 import logging
 
 from requests.exceptions import HTTPError
 from dateutil import parser
-from gapy.client import from_private_key
+from gapy.client import from_private_key, from_secrets_file
+from gapy.error import GapyError
 import requests
 
 from backdrop import load_json, get_credentials
@@ -16,11 +17,18 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 def _create_client(credentials):
-    return from_private_key(
-        credentials['ACCOUNT_NAME'],
-        private_key_path=credentials['PRIVATE_KEY'],
-        storage_path=credentials['STORAGE_PATH']
-    )
+    if "CLIENT_SECRETS" in credentials:
+        return from_secrets_file(
+            credentials['CLIENT_SECRETS'],
+            storage_path=credentials['STORAGE_PATH']
+
+        )
+    else:
+        return from_private_key(
+            credentials['ACCOUNT_NAME'],
+            private_key_path=credentials['PRIVATE_KEY'],
+            storage_path=credentials['STORAGE_PATH']
+        )
 
 
 def query_ga(client, config, start_date, end_date):
@@ -67,7 +75,11 @@ def build_document(item, data_type, start_date, end_date):
     return dict(base_properties.items() + dimensions + metrics)
 
 
-def run(config_path, start_date, end_date):
+def run(config_path, start_date=None, end_date=None):
+    if start_date is None:
+        start_date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+    if end_date is None:
+        end_date = datetime.today().strftime("%Y-%m-%d")
     try:
         config = load_json(config_path)
 
@@ -93,7 +105,7 @@ def run(config_path, start_date, end_date):
         logging.exception("Unable to send data to target")
         exit(-3)
 
-    except gapy.error.GapyError:
+    except GapyError:
         logging.exception("Unable to retrieve data from Google Analytics")
         exit(-2)
 
