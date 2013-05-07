@@ -30,9 +30,10 @@ def test_query_ga_with_empty_response():
 
 
 def test_data_id():
-    assert_that(data_id("a", dt(2013, 1, 1, 12, 0, 0, "UTC")), is_("a_20130101120000"))
-    assert_that(data_id("a", dt(2013, 6, 1, 12, 0, 0, "Europe/London")), is_("a_20130601110000"))
-    assert_that(data_id("a", dt(2013, 8, 15, 12, 0, 0, "Europe/Rome")), is_("a_20130815100000"))
+    assert_that(
+        data_id("a", dt(2012, 1, 1, 12, 0, 0, "UTC"), "week", ["one", "two"]),
+        is_("YV8yMDEyMDEwMTEyMDAwMF93ZWVrX29uZV90d28=")
+    )
 
 
 def test_build_document():
@@ -44,7 +45,7 @@ def test_build_document():
     data = build_document(gapy_response, "weeklyvisits", date(2013, 4, 1), date(2013, 4, 7))
 
     assert_that(data, has_entry("_id",
-                                "weeklyvisits_20130331230000"))
+                                "d2Vla2x5dmlzaXRzXzIwMTMwMzMxMjMwMDAwX3dlZWtfMjAxMy0wNC0wMg=="))
     assert_that(data, has_entry("dataType", "weeklyvisits"))
     assert_that(data, has_entry("_start_at",
                                 dt(2013, 4, 1, 0, 0, 0, "Europe/London")))
@@ -60,7 +61,9 @@ def test_build_document_no_dimensions():
         "metrics": {"visits": "12345", "visitors": "5376"}
     }
 
-    data = build_document(gapy_response, None, date(2013, 4, 1),
+    data = build_document(gapy_response,
+                          "foo",
+                          date(2013, 4, 1),
                           date(2013, 4, 7))
 
     assert_that(data, has_entry("_start_at",
@@ -70,3 +73,7 @@ def test_build_document_no_dimensions():
     assert_that(data, has_entry("_period", "week"))
     assert_that(data, has_entry("visits", 12345))
     assert_that(data, has_entry("visitors", 5376))
+
+@raises(ValueError)
+def test_build_document_fails_with_no_data_type():
+    build_document({}, None, date(2012, 12, 12), date(2012, 12, 13))
