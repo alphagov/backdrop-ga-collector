@@ -2,8 +2,19 @@
     "dataType": "govuk_weekly_reach",
     "query": {
         "id": "ga:12345678",
-        "metrics": [ "visits", "visitors" ],
-        "dimensions": [ "year", "hour" ]
+        "metrics": [
+            "visits",
+            "visitors"
+        ],
+        "dimensions": [
+            "customVarValue1",
+            "customVarValue2",
+            "eventCategory"
+        ]
+    },
+    "mappings": {
+        "customVarValue1": "slug",
+        "customVarValue2": "department"
     },
     "target": {
         "url": "http://write.backdrop.dev.gov.uk/foo",
