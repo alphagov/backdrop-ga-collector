@@ -61,9 +61,13 @@ def send_data(data, config):
     response.raise_for_status()
 
 
+def _format(timestamp):
+    return to_utc(timestamp).strftime("%Y%m%d%H%M%S")
+
+
 def data_id(data_type, timestamp, period, dimension_values):
     return base64.urlsafe_b64encode("_".join(
-        [data_type, to_utc(timestamp).strftime("%Y%m%d%H%M%S"), period] + dimension_values
+        [data_type, _format(timestamp), period] + dimension_values
     ))
 
 
