@@ -62,7 +62,15 @@ def data_id(data_type, timestamp):
     return "%s_%s" % (data_type, to_utc(timestamp).strftime("%Y%m%d%H%M%S"))
 
 
-def build_document(item, data_type, start_date, end_date):
+def apply_key_mapping(mapping, pairs):
+    return dict(
+        [ (mapping.get(key, key), value) for key, value in pairs.items()]
+    )
+
+
+def build_document(item, data_type, start_date, end_date, mappings=None):
+    if mappings is None:
+        mappings = {}
     base_properties = {
         "_id": data_id(data_type, to_datetime(start_date)),
         "_start_at": to_datetime(start_date),
@@ -70,7 +78,9 @@ def build_document(item, data_type, start_date, end_date):
         "_period": "week",
         "dataType": data_type
     }
-    dimensions = item.get("dimensions", {}).items()
+    dimensions = apply_key_mapping(
+        mappings,
+        item.get("dimensions", {})).items()
     metrics = [(key, int(value)) for key, value in item["metrics"].items()]
     return dict(base_properties.items() + dimensions + metrics)
 
@@ -90,13 +100,17 @@ def run(config_path, start_date=None, end_date=None):
 
         client = _create_client(credentials)
 
+        mappings = config.get("mappings", {})
+
         documents = []
 
         for start, end in period_range(start_date, end_date):
             response = query_ga(client, config["query"], start, end)
 
-            documents += [build_document(item, config["dataType"], start, end)
-                          for item in response]
+            documents += [
+                build_document(item, config["dataType"], start, end, mappings)
+                for item in response
+            ]
 
         if any(documents):
             send_data(documents, config["target"])
