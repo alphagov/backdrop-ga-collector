@@ -1,6 +1,7 @@
-from datetime import timedelta, datetime
+from datetime import timedelta
 import json
 import logging
+from pprint import pprint
 
 from requests.exceptions import HTTPError
 from dateutil import parser
@@ -9,7 +10,8 @@ from gapy.error import GapyError
 import requests
 
 from backdrop import load_json, get_credentials
-from backdrop.collector.datetimeutil import to_datetime, period_range, to_utc
+from backdrop.collector.datetimeutil \
+    import to_datetime, period_range, to_utc, a_week_ago
 from backdrop.collector.jsonencoder import JSONEncoder
 
 
@@ -75,17 +77,28 @@ def build_document(item, data_type, start_date, end_date):
     return dict(base_properties.items() + dimensions + metrics)
 
 
+def parse_date(date_string):
+    if date_string is not None:
+        return parser.parse(date_string).date()
+
+
+def pretty_print(obj):
+    return json.dumps(obj, indent=2)
+
+
 def run(config_path, start_date=None, end_date=None):
-    # TODO: default dates should depend on the time period
-    if start_date is None:
-        start_date = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
-    if end_date is None:
-        end_date = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
     try:
         config = load_json(config_path)
 
-        start_date = parser.parse(start_date)
-        end_date = parser.parse(end_date)
+        logging.info("Configuration (%s): %s"
+                     % (config_path, pretty_print(config)))
+
+        # TODO: default dates should depend on the time period
+        period_start = parse_date(start_date) or a_week_ago()
+        period_end = parse_date(end_date) or a_week_ago()
+
+        logging.info("Querying GA for data in the period: %s - %s"
+                     % (str(period_start), str(period_end)))
 
         credentials = get_credentials()
 
@@ -93,7 +106,7 @@ def run(config_path, start_date=None, end_date=None):
 
         documents = []
 
-        for start, end in period_range(start_date, end_date):
+        for start, end in period_range(period_start, period_end):
             response = query_ga(client, config["query"], start, end)
 
             documents += [build_document(item, config["dataType"], start, end)
