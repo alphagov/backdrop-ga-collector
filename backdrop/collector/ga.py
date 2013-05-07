@@ -1,4 +1,5 @@
 from datetime import timedelta
+import base64
 import json
 import logging
 from pprint import pprint
@@ -60,16 +61,24 @@ def send_data(data, config):
     response.raise_for_status()
 
 
-def data_id(data_type, timestamp):
-    return "%s_%s" % (data_type, to_utc(timestamp).strftime("%Y%m%d%H%M%S"))
+def data_id(data_type, timestamp, period, dimension_values):
+    return base64.urlsafe_b64encode("_".join(
+        [data_type, to_utc(timestamp).strftime("%Y%m%d%H%M%S"), period] + dimension_values
+    ))
 
 
 def build_document(item, data_type, start_date, end_date):
+    if data_type is None:
+        raise ValueError("Must provide a data type")
+    period = "week"
     base_properties = {
-        "_id": data_id(data_type, to_datetime(start_date)),
+        "_id": data_id(
+            data_type, to_datetime(start_date), period,
+            item.get("dimensions", {}).values()
+        ),
         "_start_at": to_datetime(start_date),
         "_end_at": to_datetime(end_date + timedelta(days=1)),
-        "_period": "week",
+        "_period": period,
         "dataType": data_type
     }
     dimensions = item.get("dimensions", {}).items()
