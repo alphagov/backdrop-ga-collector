@@ -76,10 +76,11 @@ def build_document(item, data_type, start_date, end_date):
 
 
 def run(config_path, start_date=None, end_date=None):
+    # TODO: default dates should depend on the time period
     if start_date is None:
-        start_date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+        start_date = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
     if end_date is None:
-        end_date = datetime.today().strftime("%Y-%m-%d")
+        end_date = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
     try:
         config = load_json(config_path)
 
