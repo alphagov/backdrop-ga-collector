@@ -88,9 +88,8 @@ def build_document(item, data_type, start_date, end_date, mappings=None):
             data_type, to_datetime(start_date), period,
             item.get("dimensions", {}).values()
         ),
-        "_start_at": to_datetime(start_date),
-        "_end_at": to_datetime(end_date + timedelta(days=1)),
-        "_period": period,
+        "_timestamp": to_datetime(start_date),
+        "timeSpan": period,
         "dataType": data_type
     }
     dimensions = apply_key_mapping(

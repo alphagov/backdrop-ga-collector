@@ -47,11 +47,9 @@ def test_build_document():
     assert_that(data, has_entry("_id",
                                 "d2Vla2x5dmlzaXRzXzIwMTMwMzMxMjMwMDAwX3dlZWtfMjAxMy0wNC0wMg=="))
     assert_that(data, has_entry("dataType", "weeklyvisits"))
-    assert_that(data, has_entry("_start_at",
+    assert_that(data, has_entry("_timestamp",
                                 dt(2013, 4, 1, 0, 0, 0, "Europe/London")))
-    assert_that(data, has_entry("_end_at",
-                                dt(2013, 4, 8, 0, 0, 0, "Europe/London")))
-    assert_that(data, has_entry("_period", "week"))
+    assert_that(data, has_entry("timeSpan", "week"))
     assert_that(data, has_entry("date", "2013-04-02"))
     assert_that(data, has_entry("visits", 12345))
 
@@ -66,11 +64,9 @@ def test_build_document_no_dimensions():
                           date(2013, 4, 1),
                           date(2013, 4, 7))
 
-    assert_that(data, has_entry("_start_at",
+    assert_that(data, has_entry("_timestamp",
                                 dt(2013, 4, 1, 0, 0, 0, "Europe/London")))
-    assert_that(data, has_entry("_end_at",
-                                dt(2013, 4, 8, 0, 0, 0, "Europe/London")))
-    assert_that(data, has_entry("_period", "week"))
+    assert_that(data, has_entry("timeSpan", "week"))
     assert_that(data, has_entry("visits", 12345))
     assert_that(data, has_entry("visitors", 5376))
 
@@ -88,11 +84,9 @@ def test_key_mappings_are_applied_when_building_documents():
     assert_that(data, has_entry("_id",
                                 "d2Vla2x5dmlzaXRzXzIwMTMwMzMxMjMwMDAwX3dlZWtfMjAxMy0wNC0wMg=="))
     assert_that(data, has_entry("dataType", "weeklyvisits"))
-    assert_that(data, has_entry("_start_at",
+    assert_that(data, has_entry("_timestamp",
                                 dt(2013, 4, 1, 0, 0, 0, "Europe/London")))
-    assert_that(data, has_entry("_end_at",
-                                dt(2013, 4, 8, 0, 0, 0, "Europe/London")))
-    assert_that(data, has_entry("_period", "week"))
+    assert_that(data, has_entry("timeSpan", "week"))
     assert_that(data, has_entry("mydate", "2013-04-02"))
     assert_that(data, has_entry("visits", 12345))
 
