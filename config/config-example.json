@@ -10,6 +10,9 @@
             "customVarValue1",
             "customVarValue2",
             "eventCategory"
+        ],
+        "filters": [
+            "eventCategory=~^categoryPrefix:"
         ]
     },
     "mappings": {
