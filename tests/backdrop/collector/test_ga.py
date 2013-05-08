@@ -11,6 +11,30 @@ def test_query_ga_with_empty_response():
     config = {
         "id": "ga:123",
         "metrics": ["visits"],
+        "dimensions": ["date"],
+        "filters": ["some-filter"]
+    }
+    client = mock.Mock()
+    client.query.get.return_value = []
+
+    response = query_ga(client, config, date(2013, 4, 1), date(2013, 4, 7))
+
+    client.query.get.assert_called_once_with(
+        "123",
+        date(2013, 4, 1),
+        date(2013, 4, 7),
+        ["visits"],
+        ["date"],
+        ["some-filter"]
+    )
+
+    eq_(response, [])
+
+
+def test_filters_are_optional():
+    config = {
+        "id": "ga:123",
+        "metrics": ["visits"],
         "dimensions": ["date"]
     }
     client = mock.Mock()
@@ -23,7 +47,8 @@ def test_query_ga_with_empty_response():
         date(2013, 4, 1),
         date(2013, 4, 7),
         ["visits"],
-        ["date"]
+        ["date"],
+        None
     )
 
     eq_(response, [])
@@ -42,7 +67,7 @@ def test_build_document():
         "dimensions": {"date": "2013-04-02"}
     }
 
-    data = build_document(gapy_response, "weeklyvisits", date(2013, 4, 1), date(2013, 4, 7))
+    data = build_document(gapy_response, "weeklyvisits", date(2013, 4, 1))
 
     assert_that(data, has_entry("_id",
                                 "d2Vla2x5dmlzaXRzXzIwMTMwMzMxMjMwMDAwX3dlZWtfMjAxMy0wNC0wMg=="))
@@ -59,10 +84,7 @@ def test_build_document_no_dimensions():
         "metrics": {"visits": "12345", "visitors": "5376"}
     }
 
-    data = build_document(gapy_response,
-                          "foo",
-                          date(2013, 4, 1),
-                          date(2013, 4, 7))
+    data = build_document(gapy_response, "foo", date(2013, 4, 1))
 
     assert_that(data, has_entry("_timestamp",
                                 dt(2013, 4, 1, 0, 0, 0, "Europe/London")))
@@ -77,9 +99,8 @@ def test_key_mappings_are_applied_when_building_documents():
         "dimensions": {"date": "2013-04-02"}
     }
 
-    data = build_document(
-        gapy_response, "weeklyvisits", date(2013, 4, 1), date(2013, 4, 7),
-        {"date": "mydate"})
+    data = build_document(gapy_response, "weeklyvisits", date(2013, 4, 1),
+                          {"date": "mydate"})
 
     assert_that(data, has_entry("_id",
                                 "d2Vla2x5dmlzaXRzXzIwMTMwMzMxMjMwMDAwX3dlZWtfMjAxMy0wNC0wMg=="))
@@ -101,4 +122,4 @@ def test_apply_key_mapping():
 
 @raises(ValueError)
 def test_build_document_fails_with_no_data_type():
-    build_document({}, None, date(2012, 12, 12), date(2012, 12, 13))
+    build_document({}, None, date(2012, 12, 12))

@@ -1,8 +1,6 @@
-from datetime import timedelta
 import base64
 import json
 import logging
-from pprint import pprint
 
 from requests.exceptions import HTTPError
 from dateutil import parser
@@ -35,18 +33,21 @@ def _create_client(credentials):
 
 
 def query_ga(client, config, start_date, end_date):
+
+
     return client.query.get(
         config["id"].replace("ga:", ""),
         start_date,
         end_date,
         config["metrics"],
-        config["dimensions"]
+        config["dimensions"],
+        config.get("filters")
     )
 
 
 def send_data(data, config):
     url = config["url"]
-    data = json.dumps(data, cls=JSONEncoder)
+    data = json.dumps(data, cls=JSONEncoder, indent=1)
     headers = {
         "Content-type": "application/json",
         "Authorization": "Bearer " + config["token"]
@@ -77,7 +78,7 @@ def apply_key_mapping(mapping, pairs):
     )
 
 
-def build_document(item, data_type, start_date, end_date, mappings=None):
+def build_document(item, data_type, start_date, mappings=None):
     if data_type is None:
         raise ValueError("Must provide a data type")
     if mappings is None:
@@ -134,12 +135,14 @@ def run(config_path, start_date=None, end_date=None):
             response = query_ga(client, config["query"], start, end)
 
             documents += [
-                build_document(item, config["dataType"], start, end, mappings)
+                build_document(item, config["dataType"], start, mappings)
                 for item in response
             ]
 
         if any(documents):
             send_data(documents, config["target"])
+        else:
+            logging.info("No data returned with current configuration")
 
     except HTTPError:
         logging.exception("Unable to send data to target")

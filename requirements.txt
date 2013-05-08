@@ -1,4 +1,4 @@
-gapy==0.0.6
+gapy==0.0.7
 python-dateutil==2.1
 pytz==2013b
 requests
