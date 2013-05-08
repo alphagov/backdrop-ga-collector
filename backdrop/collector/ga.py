@@ -34,7 +34,6 @@ def _create_client(credentials):
 
 def query_ga(client, config, start_date, end_date):
 
-
     return client.query.get(
         config["id"].replace("ga:", ""),
         start_date,
