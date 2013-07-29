@@ -52,8 +52,6 @@ def send_data(data, config):
         "Authorization": "Bearer " + config["token"]
     }
 
-    logging.debug("Posting:\n%s" % data)
-
     response = requests.post(url, data=data, headers=headers)
 
     logging.info("Received response:\n%s" % response.text)
