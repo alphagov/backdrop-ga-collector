@@ -1,7 +1,7 @@
 import unittest
 from hamcrest import assert_that, is_
-from backdrop.collector.jsonencoder import JSONEncoder
-from tests.backdrop.collector import dt
+from collector.jsonencoder import JSONEncoder
+from tests.collector import dt
 
 
 class TestEncoder(unittest.TestCase):

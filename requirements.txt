@@ -2,3 +2,4 @@ gapy==0.0.8
 python-dateutil==2.1
 pytz==2013d
 requests==1.2.3
+-e git+git://github.com/alphagov/backdrop-collector.git@0.0.3#egg=backdrop-collector

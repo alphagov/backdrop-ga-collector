@@ -8,10 +8,10 @@ from gapy.client import from_private_key, from_secrets_file
 from gapy.error import GapyError
 import requests
 
-from backdrop import load_json, get_credentials
-from backdrop.collector.datetimeutil \
+from collector import load_json, get_credentials
+from collector.datetimeutil \
     import to_datetime, period_range, to_utc, a_week_ago
-from backdrop.collector.jsonencoder import JSONEncoder
+from collector.jsonencoder import JSONEncoder
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -104,6 +104,34 @@ def parse_date(date_string):
 
 def pretty_print(obj):
     return json.dumps(obj, indent=2)
+
+
+def send_records_for(query, credentials, start_date=None, end_date=None):
+    # TODO: default dates should depend on the time period
+    period_start = parse_date(start_date) or a_week_ago()
+    period_end = parse_date(end_date) or a_week_ago()
+
+    logging.info("Querying GA for data in the period: %s - %s"
+                 % (period_start, period_end))
+
+    client = _create_client(credentials)
+
+    mappings = query.get("mappings", {})
+
+    documents = []
+
+    for start, end in period_range(period_start, period_end):
+        response = query_ga(client, query["query"], start, end)
+
+        documents += [
+            build_document(item, query["dataType"], start, mappings)
+            for item in response
+        ]
+
+    if any(documents):
+        send_data(documents, query["target"])
+    else:
+        logging.info("No data returned with current configuration")
 
 
 def run(config_path, start_date=None, end_date=None):

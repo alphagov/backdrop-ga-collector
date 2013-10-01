@@ -1,7 +1,7 @@
 from datetime import date
 from hamcrest import assert_that, only_contains
 from nose.tools import raises
-from backdrop.collector.datetimeutil import period_range
+from collector.datetimeutil import period_range
 
 
 def test_period_range():

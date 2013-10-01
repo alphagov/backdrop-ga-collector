@@ -1,10 +1,9 @@
-from datetime import date, datetime
-from hamcrest import assert_that, has_entry, only_contains, is_
+from datetime import date
+from hamcrest import assert_that, has_entry, is_
 import mock
 from nose.tools import *
-import pytz
-from backdrop.collector.ga import query_ga, build_document, period_range, data_id, apply_key_mapping
-from tests.backdrop.collector import dt
+from collector.ga import query_ga, build_document, data_id, apply_key_mapping
+from tests.collector import dt
 
 
 def test_query_ga_with_empty_response():
