@@ -1,5 +1,5 @@
 from datetime import date
-from hamcrest import assert_that, has_entry, is_, has_entries
+from hamcrest import assert_that, is_, has_entries
 import mock
 from nose.tools import *
 from collector.ga import query_ga, build_document, data_id, apply_key_mapping
@@ -68,14 +68,29 @@ def test_build_document():
 
     data = build_document(gapy_response, "weeklyvisits", date(2013, 4, 1))
 
-    assert_that(data, has_entry("_id",
-                                "d2Vla2x5dmlzaXRzXzIwMTMwMzMxMjMwMDAwX3dlZWtfMjAxMy0wNC0wMg=="))
-    assert_that(data, has_entry("dataType", "weeklyvisits"))
-    assert_that(data, has_entry("_timestamp",
-                                dt(2013, 4, 1, 0, 0, 0, "Europe/London")))
-    assert_that(data, has_entry("timeSpan", "week"))
-    assert_that(data, has_entry("date", "2013-04-02"))
-    assert_that(data, has_entry("visits", 12345))
+    assert_that(data, has_entries({
+        "_id": "d2Vla2x5dmlzaXRzXzIwMTMwMzMxMjMwMDAwX3dlZWtfMjAxMy0wNC0wMg==",
+        "dataType": "weeklyvisits",
+        "_timestamp": dt(2013, 4, 1, 0, 0, 0, "Europe/London"),
+        "timeSpan": "week",
+        "date": "2013-04-02",
+        "visits": 12345,
+    }))
+
+
+def test_build_document_no_dimensions():
+    gapy_response = {
+        "metrics": {"visits": "12345", "visitors": "5376"}
+    }
+
+    data = build_document(gapy_response, "foo", date(2013, 4, 1))
+
+    assert_that(data, has_entries({
+        "_timestamp": dt(2013, 4, 1, 0, 0, 0, "Europe/London"),
+        "timeSpan": "week",
+        "visits": 12345,
+        "visitors": 5376,
+    }))
 
 
 def test_build_document_mappings_are_applied_to_dimensions():
@@ -94,18 +109,6 @@ def test_build_document_mappings_are_applied_to_dimensions():
     }))
 
 
-def test_build_document_no_dimensions():
-    gapy_response = {
-        "metrics": {"visits": "12345", "visitors": "5376"}
-    }
-
-    data = build_document(gapy_response, "foo", date(2013, 4, 1))
-
-    assert_that(data, has_entry("_timestamp",
-                                dt(2013, 4, 1, 0, 0, 0, "Europe/London")))
-    assert_that(data, has_entry("timeSpan", "week"))
-    assert_that(data, has_entry("visits", 12345))
-    assert_that(data, has_entry("visitors", 5376))
 
 
 def test_key_mappings_are_applied_when_building_documents():
@@ -117,14 +120,14 @@ def test_key_mappings_are_applied_when_building_documents():
     data = build_document(gapy_response, "weeklyvisits", date(2013, 4, 1),
                           {"date": "mydate"})
 
-    assert_that(data, has_entry("_id",
-                                "d2Vla2x5dmlzaXRzXzIwMTMwMzMxMjMwMDAwX3dlZWtfMjAxMy0wNC0wMg=="))
-    assert_that(data, has_entry("dataType", "weeklyvisits"))
-    assert_that(data, has_entry("_timestamp",
-                                dt(2013, 4, 1, 0, 0, 0, "Europe/London")))
-    assert_that(data, has_entry("timeSpan", "week"))
-    assert_that(data, has_entry("mydate", "2013-04-02"))
-    assert_that(data, has_entry("visits", 12345))
+    assert_that(data, has_entries({
+        "_id": "d2Vla2x5dmlzaXRzXzIwMTMwMzMxMjMwMDAwX3dlZWtfMjAxMy0wNC0wMg==",
+        "dataType": "weeklyvisits",
+        "_timestamp": dt(2013, 4, 1, 0, 0, 0, "Europe/London"),
+        "timeSpan": "week",
+        "mydate": "2013-04-02",
+        "visits": 12345,
+    }))
 
 
 def test_apply_key_mapping():
