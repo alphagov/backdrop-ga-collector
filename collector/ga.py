@@ -171,12 +171,12 @@ def run(config_path, start_date=None, end_date=None):
 
     except HTTPError:
         logging.exception("Unable to send data to target")
-        exit(-3)
+        exit(3)
 
     except GapyError:
         logging.exception("Unable to retrieve data from Google Analytics")
-        exit(-2)
+        exit(2)
 
     except Exception as e:
         logging.exception(e)
-        exit(-1)
+        exit(1)
