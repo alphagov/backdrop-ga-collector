@@ -108,8 +108,8 @@ def pretty_print(obj):
 
 def send_records_for(query, credentials, start_date=None, end_date=None):
     # TODO: default dates should depend on the time period
-    period_start = parse_date(start_date) or a_week_ago()
-    period_end = parse_date(end_date) or a_week_ago()
+    period_start = parse_date(start_date)
+    period_end = parse_date(end_date)
 
     logging.info("Querying GA for data in the period: %s - %s"
                  % (period_start, period_end))
@@ -142,8 +142,8 @@ def run(config_path, start_date=None, end_date=None):
                      % (config_path, pretty_print(config)))
 
         # TODO: default dates should depend on the time period
-        period_start = parse_date(start_date) or a_week_ago()
-        period_end = parse_date(end_date) or a_week_ago()
+	    period_start = parse_date(start_date)
+	    period_end = parse_date(end_date)
 
         logging.info("Querying GA for data in the period: %s - %s"
                      % (str(period_start), str(period_end)))
