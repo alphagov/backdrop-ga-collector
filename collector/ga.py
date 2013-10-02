@@ -46,15 +46,18 @@ def query_ga(client, config, start_date, end_date):
     )
 
 
-def send_data(data, config):
+def send_data(documents, config):
+    if len(documents) == 0:
+        logging.info("No data returned with current configuration")
+        return
     url = config["url"]
-    data = json.dumps(data, cls=JSONEncoder, indent=1)
+    documents = json.dumps(documents, cls=JSONEncoder, indent=1)
     headers = {
         "Content-type": "application/json",
         "Authorization": "Bearer " + config["token"]
     }
 
-    response = requests.post(url, data=data, headers=headers)
+    response = requests.post(url, data=documents, headers=headers)
 
     logging.info("Received response:\n%s" % response.text)
 
@@ -108,7 +111,21 @@ def pretty_print(obj):
     return json.dumps(obj, indent=2)
 
 
-def send_records_for(query, credentials, start_date=None, end_date=None):
+def build_document_set(results, data_type, mappings):
+    return [build_document(item, data_type, start, mappings)
+            for start, item in results]
+
+
+def query_for_range(client, query, period_start, period_end):
+    items = []
+    for start, end in period_range(period_start, period_end):
+        items += [
+            (start, item) for item in query_ga(client, query, start, end)]
+
+    return items
+
+
+def query_documents_for(query, credentials, start_date, end_date):
     # TODO: default dates should depend on the time period
     period_start = parse_date(start_date)
     period_end = parse_date(end_date)
@@ -117,20 +134,15 @@ def send_records_for(query, credentials, start_date=None, end_date=None):
 
     mappings = query.get("mappings", {})
 
-    documents = []
+    results = query_for_range(client, query["query"], period_start, period_end)
 
-    for start, end in period_range(period_start, period_end):
-        response = query_ga(client, query["query"], start, end)
+    return build_document_set(results, query["dataType"], mappings)
 
-        documents += [
-            build_document(item, query["dataType"], start, mappings)
-            for item in response
-        ]
 
-    if any(documents):
-        send_data(documents, query["target"])
-    else:
-        logging.info("No data returned with current configuration")
+def send_records_for(query, credentials, start_date=None, end_date=None):
+    documents = query_documents_for(query, credentials, start_date, end_date)
+
+    send_data(documents, query["target"])
 
 
 def run(config_path, start_date=None, end_date=None):
@@ -140,30 +152,10 @@ def run(config_path, start_date=None, end_date=None):
         logging.info("Configuration (%s): %s"
                      % (config_path, pretty_print(config)))
 
-        # TODO: default dates should depend on the time period
-        period_start = parse_date(start_date)
-        period_end = parse_date(end_date)
+        documents = query_documents_for(
+            config, get_credentials(), start_date, end_date)
 
-        credentials = get_credentials()
-
-        client = _create_client(credentials)
-
-        mappings = config.get("mappings", {})
-
-        documents = []
-
-        for start, end in period_range(period_start, period_end):
-            response = query_ga(client, config["query"], start, end)
-
-            documents += [
-                build_document(item, config["dataType"], start, mappings)
-                for item in response
-            ]
-
-        if any(documents):
-            send_data(documents, config["target"])
-        else:
-            logging.info("No data returned with current configuration")
+        send_data(documents, config["target"])
 
     except HTTPError:
         logging.exception("Unable to send data to target")
