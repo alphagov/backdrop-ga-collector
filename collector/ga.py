@@ -33,6 +33,8 @@ def _create_client(credentials):
 
 
 def query_ga(client, config, start_date, end_date):
+    logging.info("Querying GA for data in the period: %s - %s"
+        % (str(start_date), str(end_date)))
 
     return client.query.get(
         config["id"].replace("ga:", ""),
@@ -111,9 +113,6 @@ def send_records_for(query, credentials, start_date=None, end_date=None):
     period_start = parse_date(start_date)
     period_end = parse_date(end_date)
 
-    logging.info("Querying GA for data in the period: %s - %s"
-                 % (period_start, period_end))
-
     client = _create_client(credentials)
 
     mappings = query.get("mappings", {})
@@ -142,11 +141,8 @@ def run(config_path, start_date=None, end_date=None):
                      % (config_path, pretty_print(config)))
 
         # TODO: default dates should depend on the time period
-	    period_start = parse_date(start_date)
-	    period_end = parse_date(end_date)
-
-        logging.info("Querying GA for data in the period: %s - %s"
-                     % (str(period_start), str(period_end)))
+        period_start = parse_date(start_date)
+        period_end = parse_date(end_date)
 
         credentials = get_credentials()
 
