@@ -16,6 +16,9 @@ def to_utc(a_datetime):
 
 
 def period_range(start_date, end_date):
+    start_date = start_date or a_week_ago()
+    end_date = end_date or a_week_ago()
+
     if start_date > end_date:
         raise ValueError
 
