@@ -1,5 +1,5 @@
 from datetime import date
-from hamcrest import assert_that, has_entry, is_
+from hamcrest import assert_that, has_entry, is_, has_entries
 import mock
 from nose.tools import *
 from collector.ga import query_ga, build_document, data_id, apply_key_mapping
@@ -76,6 +76,22 @@ def test_build_document():
     assert_that(data, has_entry("timeSpan", "week"))
     assert_that(data, has_entry("date", "2013-04-02"))
     assert_that(data, has_entry("visits", 12345))
+
+
+def test_build_document_mappings_are_applied_to_dimensions():
+    mappings = {
+        "customVarValue1": "name"
+    }
+    gapy_response = {
+        "metrics": {"visits": "12345"},
+        "dimensions": {"customVarValue1": "Jane"},
+    }
+
+    doc = build_document(gapy_response, "people", date(2013, 4, 1), mappings)
+
+    assert_that(doc, has_entries({
+        "name": "Jane"
+    }))
 
 
 def test_build_document_no_dimensions():
