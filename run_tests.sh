@@ -33,7 +33,7 @@ pip install -r requirements_for_tests.txt
 # run unit tests
 nosetests -v --with-xunit --with-coverage --cover-package=backdrop --xunit-file=$outdir/nosetests.xml
 display_result $? 1 "Unit tests"
-python -m coverage.__main__ xml --include=backdrop* -o "$outdir/coverage.xml"
+python -m coverage.__main__ xml --include=collector* -o "$outdir/coverage.xml"
 
 # run style check
 $basedir/pep-it.sh | tee "$outdir/pep8.out"
