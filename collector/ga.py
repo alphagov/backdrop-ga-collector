@@ -34,7 +34,7 @@ def _create_client(credentials):
 
 def query_ga(client, config, start_date, end_date):
     logging.info("Querying GA for data in the period: %s - %s"
-        % (str(start_date), str(end_date)))
+                 % (str(start_date), str(end_date)))
 
     return client.query.get(
         config["id"].replace("ga:", ""),
