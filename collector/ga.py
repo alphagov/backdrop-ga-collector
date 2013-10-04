@@ -102,11 +102,6 @@ def build_document(item, data_type, start_date, mappings=None):
     return dict(base_properties.items() + dimensions + metrics)
 
 
-def parse_date(date_string):
-    if date_string is not None:
-        return parser.parse(date_string).date()
-
-
 def pretty_print(obj):
     return json.dumps(obj, indent=2)
 
@@ -126,15 +121,11 @@ def query_for_range(client, query, period_start, period_end):
 
 
 def query_documents_for(query, credentials, start_date, end_date):
-    # TODO: default dates should depend on the time period
-    period_start = parse_date(start_date)
-    period_end = parse_date(end_date)
-
     client = _create_client(credentials)
 
     mappings = query.get("mappings", {})
 
-    results = query_for_range(client, query["query"], period_start, period_end)
+    results = query_for_range(client, query["query"], start_date, end_date)
 
     return build_document_set(results, query["dataType"], mappings)
 
