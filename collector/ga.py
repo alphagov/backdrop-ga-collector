@@ -134,4 +134,3 @@ def send_records_for(query, credentials, start_date=None, end_date=None):
     documents = query_documents_for(query, credentials, start_date, end_date)
 
     send_data(documents, query["target"])
-
