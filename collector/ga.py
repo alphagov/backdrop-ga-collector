@@ -102,11 +102,6 @@ def build_document(item, data_type, start_date, mappings=None):
     return dict(base_properties.items() + dimensions + metrics)
 
 
-def parse_date(date_string):
-    if date_string is not None:
-        return parser.parse(date_string).date()
-
-
 def pretty_print(obj):
     return json.dumps(obj, indent=2)
 
@@ -126,15 +121,11 @@ def query_for_range(client, query, period_start, period_end):
 
 
 def query_documents_for(query, credentials, start_date, end_date):
-    # TODO: default dates should depend on the time period
-    period_start = parse_date(start_date)
-    period_end = parse_date(end_date)
-
     client = _create_client(credentials)
 
     mappings = query.get("mappings", {})
 
-    results = query_for_range(client, query["query"], period_start, period_end)
+    results = query_for_range(client, query["query"], start_date, end_date)
 
     return build_document_set(results, query["dataType"], mappings)
 
@@ -144,27 +135,3 @@ def send_records_for(query, credentials, start_date=None, end_date=None):
 
     send_data(documents, query["target"])
 
-
-def run(config_path, start_date=None, end_date=None):
-    try:
-        config = load_json(config_path)
-
-        logging.info("Configuration (%s): %s"
-                     % (config_path, pretty_print(config)))
-
-        documents = query_documents_for(
-            config, get_credentials(), start_date, end_date)
-
-        send_data(documents, config["target"])
-
-    except HTTPError:
-        logging.exception("Unable to send data to target")
-        exit(3)
-
-    except GapyError:
-        logging.exception("Unable to retrieve data from Google Analytics")
-        exit(2)
-
-    except Exception as e:
-        logging.exception(e)
-        exit(1)
