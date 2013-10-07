@@ -70,11 +70,11 @@ The backdrop URL and bearer token that the records will be sent to.
 
 ## Run the config
 
-Install dependencies and run the `run.py` script passing in the path to the config file, a start date and an end date.
+Install dependencies and run the `collect.py` script passing in the path to the query config file, credentials file, a start date and an end date.
 
 NB. You should probably be doing this in a [virtualenv](https://pypi.python.org/pypi/virtualenv).
 
 ```shell
 pip install -r requirements.txt
-python run.py path/to/config.json 2012-12-12 2013-01-12
+python collect.py --credentials=path/to/credentials.json --query=path/to/config.json --start=2012-12-12 --end=2013-01-12
 ```

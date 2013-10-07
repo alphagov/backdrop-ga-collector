@@ -135,27 +135,3 @@ def send_records_for(query, credentials, start_date=None, end_date=None):
 
     send_data(documents, query["target"])
 
-
-def run(config_path, start_date=None, end_date=None):
-    try:
-        config = load_json(config_path)
-
-        logging.info("Configuration (%s): %s"
-                     % (config_path, pretty_print(config)))
-
-        documents = query_documents_for(
-            config, get_credentials(), start_date, end_date)
-
-        send_data(documents, config["target"])
-
-    except HTTPError:
-        logging.exception("Unable to send data to target")
-        exit(3)
-
-    except GapyError:
-        logging.exception("Unable to retrieve data from Google Analytics")
-        exit(2)
-
-    except Exception as e:
-        logging.exception(e)
-        exit(1)
