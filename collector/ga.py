@@ -1,6 +1,7 @@
 import base64
 import json
 import logging
+import re
 
 from requests.exceptions import HTTPError
 from dateutil import parser
@@ -74,10 +75,36 @@ def data_id(data_type, timestamp, period, dimension_values):
     ))
 
 
-def apply_key_mapping(mapping, pairs):
+def map_one_to_one_fields(mapping, pairs):
     return dict(
-        [ (mapping.get(key, key), value) for key, value in pairs.items()]
+        [(mapping.get(key, key), value) for key, value in pairs.items()]
     )
+
+
+def map_multi_value_fields(mapping, pairs):
+    multi_value_regexp = '^(.*)_(\d*)$'
+    multi_value_delimiter = ':'
+    mapped_pairs = {}
+
+    for from_key, to_key in mapping.items():
+        multi_value_matches = re.search(multi_value_regexp, from_key)
+        if multi_value_matches:
+            key = multi_value_matches.group(1)
+            index = int(multi_value_matches.group(2))
+            multi_value = pairs.get(key)
+            if multi_value is None:
+                continue
+
+            values = multi_value.split(multi_value_delimiter)
+            if index < len(values):
+                mapped_pairs[to_key] = values[index]
+
+    return mapped_pairs
+
+
+def apply_key_mapping(mapping, pairs):
+    return dict(map_one_to_one_fields(mapping, pairs).items() +
+                map_multi_value_fields(mapping, pairs).items())
 
 
 def build_document(item, data_type, start_date, mappings=None):

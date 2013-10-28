@@ -2,7 +2,7 @@ from datetime import date
 from hamcrest import assert_that, is_, has_entries, has_item, equal_to
 import mock
 from nose.tools import *
-from collector.ga import query_ga, build_document, data_id, apply_key_mapping, build_document_set, query_for_range
+from collector.ga import query_ga, build_document, data_id, apply_key_mapping, build_document_set, query_for_range, map_multi_value_fields
 from tests.collector import dt
 
 
@@ -135,12 +135,49 @@ def test_build_document_mappings_are_applied_to_dimensions():
     }))
 
 
+def test_build_document_with_multi_value_field_mappings():
+    mappings = {
+        "multiValuesField": "originalField",
+        "multiValuesField_0": "first",
+        "multiValuesField_1": "second",
+        "multiValuesField_2": "third",
+    }
+
+    gapy_response = {
+        "metrics": {"visits": "12345"},
+        "dimensions": {"multiValuesField": "first value:second value:third value"}
+    }
+
+    doc = build_document(gapy_response, "multival", date(2013, 4, 1), mappings)
+
+    assert_that(doc, has_entries({
+        "originalField": "first value:second value:third value",
+        "first": "first value",
+        "second": "second value",
+        "third": "third value",
+    }))
+
+
 def test_apply_key_mapping():
     mapping = {"a": "b"}
 
     document = apply_key_mapping(mapping, {"a": "foo", "c": "bar"})
 
     assert_that(document, is_({"b": "foo", "c": "bar"}))
+
+
+def test_map_available_multi_value_fields():
+    mapping = {
+        'key_0_not_really': 'no_a_multi_key',
+        'key_0': 'one',
+        'key_1': 'two',
+        'key_2': 'not_in_value',
+        'no_key_0': 'dont_exist'
+    }
+
+    document = map_multi_value_fields(mapping, {'key': 'foo:bar'})
+
+    assert_that(document, is_({'one': 'foo', 'two': 'bar'}))
 
 
 def test_build_document_set():
