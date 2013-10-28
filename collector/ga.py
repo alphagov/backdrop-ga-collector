@@ -76,12 +76,15 @@ def data_id(data_type, timestamp, period, dimension_values):
 
 
 def apply_multi_value_fields_mapping(mapping, pairs):
+    multi_value_regexp = '(.*)_(\d)'
+    multi_value_delimiter = ':'
+
     for from_key, to_key in mapping.items():
-        multi_value_mapping = re.search('(.*)_(\d)', from_key)
+        multi_value_mapping = re.search(multi_value_regexp, from_key)
         if multi_value_mapping:
             key, index = multi_value_mapping.groups()
             value = pairs[key]
-            pairs[to_key] = value.split(':')[int(index)]
+            pairs[to_key] = value.split(multi_value_delimiter)[int(index)]
     return pairs
 
 
