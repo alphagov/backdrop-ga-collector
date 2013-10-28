@@ -75,18 +75,21 @@ def data_id(data_type, timestamp, period, dimension_values):
     ))
 
 
-def apply_key_mapping(mapping, pairs):
-    mapped_values = dict(
-        [(mapping.get(key, key), value) for key, value in pairs.items()]
-    )
+def apply_multi_value_fields_mapping(mapping, pairs):
     for from_key, to_key in mapping.items():
         multi_value_mapping = re.search('(.*)_(\d)', from_key)
         if multi_value_mapping:
             key, index = multi_value_mapping.groups()
             value = pairs[key]
-            mapped_values[to_key] = value.split(':')[int(index)]
+            pairs[to_key] = value.split(':')[int(index)]
+    return pairs
 
-    return mapped_values
+
+def apply_key_mapping(mapping, pairs):
+    mapped_pairs = dict(
+        [(mapping.get(key, key), value) for key, value in pairs.items()]
+    )
+    return apply_multi_value_fields_mapping(mapping, mapped_pairs)
 
 
 def build_document(item, data_type, start_date, mappings=None):
