@@ -1,6 +1,7 @@
 import base64
 import json
 import logging
+import re
 
 from requests.exceptions import HTTPError
 from dateutil import parser
@@ -75,9 +76,18 @@ def data_id(data_type, timestamp, period, dimension_values):
 
 
 def apply_key_mapping(mapping, pairs):
-    return dict(
-        [ (mapping.get(key, key), value) for key, value in pairs.items()]
+    mapped_values = dict(
+        [(mapping.get(key, key), value) for key, value in pairs.items()]
     )
+    for from_key, to_key in mapping.items():
+        matches = re.search('(.*)_(\d)', from_key)
+        if matches:
+            key = matches.group(1)
+            index = int(matches.group(2)) - 1
+            value = pairs[key]
+            mapped_values[to_key] = value.split(':')[index]
+
+    return mapped_values
 
 
 def build_document(item, data_type, start_date, mappings=None):

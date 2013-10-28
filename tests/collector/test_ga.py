@@ -135,16 +135,25 @@ def test_build_document_mappings_are_applied_to_dimensions():
     }))
 
 
-def test_build_document_with_colon_values():
+def test_build_document_with_multi_value_field_mappings():
+    mappings = {
+        "multiValuesField_1": "first",
+        "multiValuesField_2": "second",
+        "multiValuesField_3": "third",
+    }
+
     gapy_response = {
         "metrics": {"visits": "12345"},
         "dimensions": {"multiValuesField": "first value:second value:third value"}
     }
 
-    doc = build_document(gapy_response, "multival", date(2013, 4, 1), None)
+    doc = build_document(gapy_response, "multival", date(2013, 4, 1), mappings)
 
     assert_that(doc, has_entries({
-        "multiValuesField": "first value:second value:third value"
+        "multiValuesField": "first value:second value:third value",
+        "first": "first value",
+        "second": "second value",
+        "third": "third value",
     }))
 
 
