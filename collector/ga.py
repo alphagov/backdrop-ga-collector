@@ -80,12 +80,11 @@ def apply_key_mapping(mapping, pairs):
         [(mapping.get(key, key), value) for key, value in pairs.items()]
     )
     for from_key, to_key in mapping.items():
-        matches = re.search('(.*)_(\d)', from_key)
-        if matches:
-            key = matches.group(1)
-            index = int(matches.group(2)) - 1
+        multi_value_mapping = re.search('(.*)_(\d)', from_key)
+        if multi_value_mapping:
+            key, index = multi_value_mapping.groups()
             value = pairs[key]
-            mapped_values[to_key] = value.split(':')[index]
+            mapped_values[to_key] = value.split(':')[int(index)]
 
     return mapped_values
 

@@ -137,9 +137,9 @@ def test_build_document_mappings_are_applied_to_dimensions():
 
 def test_build_document_with_multi_value_field_mappings():
     mappings = {
-        "multiValuesField_1": "first",
-        "multiValuesField_2": "second",
-        "multiValuesField_3": "third",
+        "multiValuesField_0": "first",
+        "multiValuesField_1": "second",
+        "multiValuesField_2": "third",
     }
 
     gapy_response = {
