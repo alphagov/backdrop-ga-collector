@@ -2,7 +2,7 @@ from datetime import date
 from hamcrest import assert_that, is_, has_entries, has_item, equal_to
 import mock
 from nose.tools import *
-from collector.ga import query_ga, build_document, data_id, apply_key_mapping, build_document_set, query_for_range
+from collector.ga import query_ga, build_document, data_id, apply_key_mapping, build_document_set, query_for_range, apply_multi_value_fields_mapping
 from tests.collector import dt
 
 
@@ -163,6 +163,19 @@ def test_apply_key_mapping():
     document = apply_key_mapping(mapping, {"a": "foo", "c": "bar"})
 
     assert_that(document, is_({"b": "foo", "c": "bar"}))
+
+
+def test_map_available_multi_value_fields():
+    mapping = {
+        'key_0': 'one',
+        'key_1': 'two',
+        'key_2': 'not_in_value',
+        'no_key_0': 'dont_exist'
+    }
+
+    document = apply_multi_value_fields_mapping(mapping, {'key': 'foo:bar'})
+
+    assert_that(document, is_({'key': 'foo:bar', 'one': 'foo', 'two': 'bar'}))
 
 
 def test_build_document_set():

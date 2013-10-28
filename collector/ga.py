@@ -80,11 +80,18 @@ def apply_multi_value_fields_mapping(mapping, pairs):
     multi_value_delimiter = ':'
 
     for from_key, to_key in mapping.items():
-        multi_value_mapping = re.search(multi_value_regexp, from_key)
-        if multi_value_mapping:
-            key, index = multi_value_mapping.groups()
-            value = pairs[key]
-            pairs[to_key] = value.split(multi_value_delimiter)[int(index)]
+        multi_value_matches = re.search(multi_value_regexp, from_key)
+        if multi_value_matches:
+            key = multi_value_matches.group(1)
+            index = int(multi_value_matches.group(2))
+            multi_value = pairs.get(key)
+            if multi_value is None:
+                continue
+
+            values = multi_value.split(multi_value_delimiter)
+            if index < len(values):
+                pairs[to_key] = values[index]
+
     return pairs
 
 
