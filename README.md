@@ -42,7 +42,9 @@ A config is made up of four parts; the data type, the query, mappings and the ta
     },
     "mappings": {
         "customVarValue1": "slug",
-        "customVarValue2": "department"
+        "customVarValue2": "department",
+        "eventCategory_0": "categoryId",
+        "eventCategory_1": "categoryLabel"
     },
     "target": {
         "url": "http://write.backdrop.dev.gov.uk/foo",
@@ -62,6 +64,8 @@ A Google Analytics query.
 ### Mappings (`mappings`)
 
 Allows fields in the google analytics response to be mapped to other fields in the backdrop record.
+
+If a multi value field mapping is specified, the field will be split by the delimiter `:` and mapped accordingly. Example: given the field `key` has the value `foo:bar`, the mapping `key_0` will have the value of `foo` and `key_1` will have the value of `bar`.
 
 ### Target (`target`)
 
