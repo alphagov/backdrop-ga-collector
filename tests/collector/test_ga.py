@@ -137,6 +137,7 @@ def test_build_document_mappings_are_applied_to_dimensions():
 
 def test_build_document_with_multi_value_field_mappings():
     mappings = {
+        "multiValuesField": "originalField",
         "multiValuesField_0": "first",
         "multiValuesField_1": "second",
         "multiValuesField_2": "third",
@@ -150,7 +151,7 @@ def test_build_document_with_multi_value_field_mappings():
     doc = build_document(gapy_response, "multival", date(2013, 4, 1), mappings)
 
     assert_that(doc, has_entries({
-        "multiValuesField": "first value:second value:third value",
+        "originalField": "first value:second value:third value",
         "first": "first value",
         "second": "second value",
         "third": "third value",
@@ -175,7 +176,7 @@ def test_map_available_multi_value_fields():
 
     document = apply_multi_value_fields_mapping(mapping, {'key': 'foo:bar'})
 
-    assert_that(document, is_({'key': 'foo:bar', 'one': 'foo', 'two': 'bar'}))
+    assert_that(document, is_({'one': 'foo', 'two': 'bar'}))
 
 
 def test_build_document_set():
