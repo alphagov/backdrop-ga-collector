@@ -82,7 +82,7 @@ def map_one_to_one_fields(mapping, pairs):
 
 
 def map_multi_value_fields(mapping, pairs):
-    multi_value_regexp = '(.*)_(\d)'
+    multi_value_regexp = '^(.*)_(\d*)$'
     multi_value_delimiter = ':'
     mapped_pairs = {}
 

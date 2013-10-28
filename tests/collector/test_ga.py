@@ -168,6 +168,7 @@ def test_apply_key_mapping():
 
 def test_map_available_multi_value_fields():
     mapping = {
+        'key_0_not_really': 'no_a_multi_key',
         'key_0': 'one',
         'key_1': 'two',
         'key_2': 'not_in_value',
