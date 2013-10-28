@@ -2,7 +2,7 @@ from datetime import date
 from hamcrest import assert_that, is_, has_entries, has_item, equal_to
 import mock
 from nose.tools import *
-from collector.ga import query_ga, build_document, data_id, apply_key_mapping, build_document_set, query_for_range, apply_multi_value_fields_mapping
+from collector.ga import query_ga, build_document, data_id, apply_key_mapping, build_document_set, query_for_range, map_multi_value_fields
 from tests.collector import dt
 
 
@@ -174,7 +174,7 @@ def test_map_available_multi_value_fields():
         'no_key_0': 'dont_exist'
     }
 
-    document = apply_multi_value_fields_mapping(mapping, {'key': 'foo:bar'})
+    document = map_multi_value_fields(mapping, {'key': 'foo:bar'})
 
     assert_that(document, is_({'one': 'foo', 'two': 'bar'}))
 
