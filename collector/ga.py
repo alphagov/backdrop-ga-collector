@@ -42,7 +42,7 @@ def query_ga(client, config, start_date, end_date):
         start_date,
         end_date,
         config["metrics"],
-        config["dimensions"],
+        config.get("dimensions"),
         config.get("filters")
     )
 

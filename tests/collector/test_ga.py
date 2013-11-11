@@ -30,14 +30,13 @@ def test_query_ga_with_empty_response():
     eq_(response, [])
 
 
-def test_filters_are_optional():
+def test_filters_are_optional_for_querying():
     config = {
         "id": "ga:123",
         "metrics": ["visits"],
         "dimensions": ["date"]
     }
     client = mock.Mock()
-    client.query.get.return_value = []
 
     response = query_ga(client, config, date(2013, 4, 1), date(2013, 4, 7))
 
@@ -50,7 +49,25 @@ def test_filters_are_optional():
         None
     )
 
-    eq_(response, [])
+
+def test_dimensions_are_optional_for_querying():
+    config = {
+        "id": "ga:123",
+        "metrics": ["visits"],
+        "filters": ["some-filter"]
+    }
+    client = mock.Mock()
+
+    response = query_ga(client, config, date(2013, 4, 1), date(2013, 4, 7))
+
+    client.query.get.assert_called_once_with(
+        "123",
+        date(2013, 4, 1),
+        date(2013, 4, 7),
+        ["visits"],
+        None,
+        ["some-filter"]
+    )
 
 
 def test_query_for_range():
