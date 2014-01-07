@@ -16,9 +16,6 @@ from collector.jsonencoder import JSONEncoder
 from backdrop.collector.logging_setup import set_up_logging
 
 
-set_up_logging('ga_collector', logging.DEBUG)
-
-
 def _create_client(credentials):
     if "CLIENT_SECRETS" in credentials:
         return from_secrets_file(
