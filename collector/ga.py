@@ -15,9 +15,6 @@ from collector.datetimeutil \
 from collector.jsonencoder import JSONEncoder
 
 
-logging.basicConfig(level=logging.DEBUG)
-
-
 def _create_client(credentials):
     if "CLIENT_SECRETS" in credentials:
         return from_secrets_file(
