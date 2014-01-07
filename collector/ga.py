@@ -13,7 +13,6 @@ from collector import load_json, get_credentials
 from collector.datetimeutil \
     import to_datetime, period_range, to_utc, a_week_ago
 from collector.jsonencoder import JSONEncoder
-from backdrop.collector.logging_setup import set_up_logging
 
 
 def _create_client(credentials):

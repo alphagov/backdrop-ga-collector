@@ -1,4 +1,7 @@
+import logging
+
 from backdrop.collector import arguments
+from backdrop.collector.logging_setup import set_up_logging
 from collector.ga import send_records_for
 
 if __name__ == '__main__':
