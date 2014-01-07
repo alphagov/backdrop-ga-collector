@@ -69,10 +69,9 @@ def _format(timestamp):
     return to_utc(timestamp).strftime("%Y%m%d%H%M%S")
 
 
-def data_id(data_type, timestamp, period, dimension_values):
+def data_id(data_type, timestamp, period):
     return base64.urlsafe_b64encode("_".join(
-        [data_type, _format(timestamp), period] + dimension_values
-    ))
+        [data_type, _format(timestamp), period]))
 
 
 def map_one_to_one_fields(mapping, pairs):
@@ -115,9 +114,7 @@ def build_document(item, data_type, start_date, mappings=None):
     period = "week"
     base_properties = {
         "_id": data_id(
-            data_type, to_datetime(start_date), period,
-            item.get("dimensions", {}).values()
-        ),
+            data_type, to_datetime(start_date), period),
         "_timestamp": to_datetime(start_date),
         "timeSpan": period,
         "dataType": data_type
