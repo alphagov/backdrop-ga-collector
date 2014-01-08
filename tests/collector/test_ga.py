@@ -98,8 +98,8 @@ def test_query_for_range():
 
 def test_data_id():
     assert_that(
-        data_id("a", dt(2012, 1, 1, 12, 0, 0, "UTC"), "week", ["one", "two"]),
-        is_("YV8yMDEyMDEwMTEyMDAwMF93ZWVrX29uZV90d28=")
+        data_id("a", dt(2012, 1, 1, 12, 0, 0, "UTC"), "week"),
+        is_("YV8yMDEyMDEwMTEyMDAwMF93ZWVr")
     )
 
 
@@ -112,9 +112,9 @@ def test_build_document():
     data = build_document(gapy_response, "weeklyvisits", date(2013, 4, 1))
 
     assert_that(data, has_entries({
-        "_id": "d2Vla2x5dmlzaXRzXzIwMTMwMzMxMjMwMDAwX3dlZWtfMjAxMy0wNC0wMg==",
+        "_id": "d2Vla2x5dmlzaXRzXzIwMTMwNDAxMDAwMDAwX3dlZWs=",
         "dataType": "weeklyvisits",
-        "_timestamp": dt(2013, 4, 1, 0, 0, 0, "Europe/London"),
+        "_timestamp": dt(2013, 4, 1, 0, 0, 0, "UTC"),
         "timeSpan": "week",
         "date": "2013-04-02",
         "visits": 12345,
@@ -129,7 +129,7 @@ def test_build_document_no_dimensions():
     data = build_document(gapy_response, "foo", date(2013, 4, 1))
 
     assert_that(data, has_entries({
-        "_timestamp": dt(2013, 4, 1, 0, 0, 0, "Europe/London"),
+        "_timestamp": dt(2013, 4, 1, 0, 0, 0, "UTC"),
         "timeSpan": "week",
         "visits": 12345,
         "visitors": 5376,
@@ -216,18 +216,18 @@ def test_build_document_set():
 
     assert_that(docs, has_item(has_entries({
         "name": "Jane",
-        "_timestamp": dt(2013, 4, 1, 0, 0, 0, "Europe/London"),
+        "_timestamp": dt(2013, 4, 1, 0, 0, 0, "UTC"),
         "dataType": "people",
         "visits": 12345,
     })))
     assert_that(docs, has_item(has_entries({
         "name": "John",
-        "_timestamp": dt(2013, 4, 1, 0, 0, 0, "Europe/London"),
+        "_timestamp": dt(2013, 4, 1, 0, 0, 0, "UTC"),
         "visits": 2313,
     })))
     assert_that(docs, has_item(has_entries({
         "name": "Joanne",
-        "_timestamp": dt(2013, 4, 8, 0, 0, 0, "Europe/London"),
+        "_timestamp": dt(2013, 4, 8, 0, 0, 0, "UTC"),
         "visits": 4323,
     })))
 
