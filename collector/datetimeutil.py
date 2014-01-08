@@ -9,13 +9,24 @@ def to_datetime(a_date):
     return datetime.combine(a_date, time(0)).replace(tzinfo=pytz.UTC)
 
 
+def to_date(a_datetime):
+    if a_datetime is None:
+        return None
+    elif isinstance(a_datetime, datetime):
+        return a_datetime.date()
+    elif isinstance(a_datetime, date):
+        return a_datetime
+    else:
+        raise ValueError
+
+
 def to_utc(a_datetime):
     return a_datetime.astimezone(pytz.UTC)
 
 
 def period_range(start_date, end_date):
-    start_date = start_date or a_week_ago()
-    end_date = end_date or a_week_ago()
+    start_date = to_date(start_date) or a_week_ago()
+    end_date = to_date(end_date) or a_week_ago()
 
     if start_date > end_date:
         raise ValueError
