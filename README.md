@@ -1,5 +1,10 @@
 # backdrop-ga-collector
 
+[![Build Status](https://travis-ci.org/alphagov/backdrop-ga-collector.png?branch=master)](https://travis-ci.org/alphagov/backdrop-ga-collector?branch=master)
+
+
+[![Dependency Status](https://gemnasium.com/alphagov/backdrop-ga-collector.png)](https://gemnasium.com/alphagov/backdrop-ga-collector)
+
 Query Google Analytics data and send records to a [backdrop](https://github.com/alphagov/backdrop) bucket.
 
 
