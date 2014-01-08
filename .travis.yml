@@ -6,5 +6,4 @@ install: "pip install -r requirements_for_tests.txt --use-mirrors"
 script: ./run_tests.sh
 branches:
   except:
-    - master
     - release
