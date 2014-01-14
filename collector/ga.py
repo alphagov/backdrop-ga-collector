@@ -67,8 +67,8 @@ def _format(timestamp):
 
 
 def data_id(data_type, timestamp, period, dimension_values):
-    return base64.urlsafe_b64encode("_".join(
-        [data_type, _format(timestamp), period] + dimension_values))
+    return "_".join(
+        [data_type, _format(timestamp), period] + dimension_values)
 
 
 def map_one_to_one_fields(mapping, pairs):
