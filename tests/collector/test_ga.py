@@ -98,8 +98,8 @@ def test_query_for_range():
 
 def test_data_id():
     assert_that(
-        data_id("a", dt(2012, 1, 1, 12, 0, 0, "UTC"), "week"),
-        is_("YV8yMDEyMDEwMTEyMDAwMF93ZWVr")
+        data_id("a", dt(2012, 1, 1, 12, 0, 0, "UTC"), "week", ['one', 'two']),
+        is_("YV8yMDEyMDEwMTEyMDAwMF93ZWVrX29uZV90d28=")
     )
 
 
@@ -112,7 +112,7 @@ def test_build_document():
     data = build_document(gapy_response, "weeklyvisits", date(2013, 4, 1))
 
     assert_that(data, has_entries({
-        "_id": "d2Vla2x5dmlzaXRzXzIwMTMwNDAxMDAwMDAwX3dlZWs=",
+        "_id": "d2Vla2x5dmlzaXRzXzIwMTMwNDAxMDAwMDAwX3dlZWtfMjAxMy0wNC0wMg==",
         "dataType": "weeklyvisits",
         "_timestamp": dt(2013, 4, 1, 0, 0, 0, "UTC"),
         "timeSpan": "week",
