@@ -99,7 +99,10 @@ def test_query_for_range():
 def test_data_id():
     assert_that(
         data_id("a", dt(2012, 1, 1, 12, 0, 0, "UTC"), "week", ['one', 'two']),
-        is_("YV8yMDEyMDEwMTEyMDAwMF93ZWVrX29uZV90d28=")
+        is_(
+            ("YV8yMDEyMDEwMTEyMDAwMF93ZWVrX29uZV90d28=",
+             "a_20120101120000_week_one_two")
+        )
     )
 
 
@@ -113,6 +116,7 @@ def test_build_document():
 
     assert_that(data, has_entries({
         "_id": "d2Vla2x5dmlzaXRzXzIwMTMwNDAxMDAwMDAwX3dlZWtfMjAxMy0wNC0wMg==",
+        "humanId": 'weeklyvisits_20130401000000_week_2013-04-02',
         "dataType": "weeklyvisits",
         "_timestamp": dt(2013, 4, 1, 0, 0, 0, "UTC"),
         "timeSpan": "week",
