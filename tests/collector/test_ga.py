@@ -3,9 +3,10 @@
 from datetime import date
 from hamcrest import assert_that, is_, has_entries, has_item, equal_to
 import mock
-from nose.tools import *
-from nose.tools import assert_is_instance
-from collector.ga import query_ga, build_document, data_id, apply_key_mapping, build_document_set, query_for_range, map_multi_value_fields
+from nose.tools import eq_, raises, assert_is_instance
+from collector.ga import (query_ga, build_document, data_id,
+                          apply_key_mapping, build_document_set,
+                          query_for_range, map_multi_value_fields)
 from tests.collector import dt
 
 
@@ -41,7 +42,7 @@ def test_filters_are_optional_for_querying():
     }
     client = mock.Mock()
 
-    response = query_ga(client, config, date(2013, 4, 1), date(2013, 4, 7))
+    query_ga(client, config, date(2013, 4, 1), date(2013, 4, 7))
 
     client.query.get.assert_called_once_with(
         "123",
@@ -61,7 +62,7 @@ def test_dimensions_are_optional_for_querying():
     }
     client = mock.Mock()
 
-    response = query_ga(client, config, date(2013, 4, 1), date(2013, 4, 7))
+    query_ga(client, config, date(2013, 4, 1), date(2013, 4, 7))
 
     client.query.get.assert_called_once_with(
         "123",
@@ -182,7 +183,8 @@ def test_build_document_with_multi_value_field_mappings():
 
     gapy_response = {
         "metrics": {"visits": "12345"},
-        "dimensions": {"multiValuesField": "first value:second value:third value"}
+        "dimensions": {"multiValuesField":
+                       "first value:second value:third value"}
     }
 
     doc = build_document(gapy_response, "multival", date(2013, 4, 1), mappings)
