@@ -1,7 +1,10 @@
+# encoding: utf-8
+
 from datetime import date
 from hamcrest import assert_that, is_, has_entries, has_item, equal_to
 import mock
 from nose.tools import *
+from nose.tools import assert_is_instance
 from collector.ga import query_ga, build_document, data_id, apply_key_mapping, build_document_set, query_for_range, map_multi_value_fields
 from tests.collector import dt
 
@@ -104,6 +107,19 @@ def test_data_id():
              "a_20120101120000_week_one_two")
         )
     )
+
+
+def test_unicode_data_id():
+    base64, human = data_id(
+        "a",
+        dt(2012, 1, 1, 12, 0, 0, "UTC"),
+        "week",
+        ['one', u"© ☯ ☮"])
+
+    assert_is_instance(human, str)
+    assert_that(human, is_(str("a_20120101120000_week_one_© ☯ ☮")))
+    assert_that(base64,
+                is_("YV8yMDEyMDEwMTEyMDAwMF93ZWVrX29uZV_CqSDimK8g4piu"))
 
 
 def test_build_document():
