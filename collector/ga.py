@@ -70,7 +70,7 @@ def data_id(data_type, timestamp, period, dimension_values):
     human_id = "_".join(
         [data_type, _format(timestamp), period] + dimension_values)
     human_id_bytes = human_id.encode('utf-8')
-    logging.debug(u"'{}' ({})".format(human_id, type(human_id)))
+    logging.debug(u"'{0}' ({1})".format(human_id, type(human_id)))
     return base64.urlsafe_b64encode(human_id_bytes), human_id_bytes
 
 
