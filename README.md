@@ -12,16 +12,16 @@ Query Google Analytics data and send records to a [backdrop](https://github.com/
 
 Backdrop GA collector expects a file called `config/credentials.json` containing information about the google analytics credentials. This can be in one of two forms based on client secrets or a service account. If you don't know which type you want it's probably best to start with the client secrets method.
 
-### Get your client secrets file
+### Get your client secret file
 
 - Go to the [Google API Console](https://code.google.com/apis/console) and create a new client ID for an installed application.
 - Once created click the *Download JSON* link. This is your client secrets file.
 
-### Create your credentials file
-- Copy `config/credentials-clientsecrets-example.json` to `config/credentials.json`.
-- Replace the `/path/to/client_secrets.json` with the path to your newly downloaded client secrets file.
-- Replace the `/path/to/storage.db` with a path to a file that will be created to store the refresh token.
+### Generate credentials files
 
+Run `python tools/generate-credentials.py /path/to/client_secret.json`.
+
+This will generate the required credentials files in the `./config` directory.
 
 ## Create a config
 
