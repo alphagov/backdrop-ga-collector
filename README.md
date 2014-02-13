@@ -8,6 +8,19 @@
 Query Google Analytics data and send records to a [backdrop](https://github.com/alphagov/backdrop) bucket.
 
 
+## Install dependencies
+
+We recommend you use [virtualenv](https://pypi.python.org/pypi/virtualenv) and install dependencies with [pip](https://pypi.python.org/pypi/pip).
+
+```shell
+# Create a virtualenv
+$ virtualenv ~/.virtualenvs/backdrop-ga-collector
+# Activate the virtualenv
+$ source ~/.virtualenvs/backdrop-ga-collector/bin/activate
+# Install dependencies
+$ pip install -r requirements.txt
+```
+
 ## Set up credentials
 
 Backdrop GA collector expects a file called `config/credentials.json` containing information about the google analytics credentials. This can be in one of two forms based on client secrets or a service account. If you don't know which type you want it's probably best to start with the client secrets method.
@@ -84,6 +97,5 @@ Install dependencies and run the `collect.py` script passing in the path to the 
 NB. You should probably be doing this in a [virtualenv](https://pypi.python.org/pypi/virtualenv).
 
 ```shell
-pip install -r requirements.txt
 python collect.py --credentials=path/to/credentials.json --query=path/to/config.json --start=2012-12-12 --end=2013-01-12
 ```
