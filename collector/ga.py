@@ -3,13 +3,9 @@ import json
 import logging
 import re
 
-from requests.exceptions import HTTPError
-from dateutil import parser
 from gapy.client import from_private_key, from_secrets_file
-from gapy.error import GapyError
 import requests
 
-from collector import load_json, get_credentials
 from collector.datetimeutil \
     import to_datetime, period_range, to_utc, a_week_ago
 from collector.jsonencoder import JSONEncoder
