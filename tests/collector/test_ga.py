@@ -255,3 +255,13 @@ def test_build_document_set():
 @raises(ValueError)
 def test_build_document_fails_with_no_data_type():
     build_document({}, None, date(2012, 12, 12))
+
+
+def test_if_we_provide_id_field_it_is_used():
+    doc = build_document({"dimensions": {"idVar": "foo"},
+                          "metrics": {"some_metric": 123}},
+                         "data_type",
+                         date(2014, 2, 19),
+                         idDimension="idVar")
+
+    eq_(doc["_id"], "Zm9v")
