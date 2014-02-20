@@ -3,13 +3,9 @@ import json
 import logging
 import re
 
-from requests.exceptions import HTTPError
-from dateutil import parser
 from gapy.client import from_private_key, from_secrets_file
-from gapy.error import GapyError
 import requests
 
-from collector import load_json, get_credentials
 from collector.datetimeutil \
     import to_datetime, period_range, to_utc, a_week_ago
 from collector.jsonencoder import JSONEncoder
@@ -66,12 +62,16 @@ def _format(timestamp):
     return to_utc(timestamp).strftime("%Y%m%d%H%M%S")
 
 
+def value_id(value):
+    value_bytes = value.encode('utf-8')
+    logging.debug(u"'{0}' ({1})".format(value, type(value)))
+    return base64.urlsafe_b64encode(value_bytes), value_bytes
+
+
 def data_id(data_type, timestamp, period, dimension_values):
     human_id = "_".join(
         [data_type, _format(timestamp), period] + dimension_values)
-    human_id_bytes = human_id.encode('utf-8')
-    logging.debug(u"'{0}' ({1})".format(human_id, type(human_id)))
-    return base64.urlsafe_b64encode(human_id_bytes), human_id_bytes
+    return value_id(human_id)
 
 
 def map_one_to_one_fields(mapping, pairs):
@@ -106,18 +106,23 @@ def apply_key_mapping(mapping, pairs):
                 map_multi_value_fields(mapping, pairs).items())
 
 
-def build_document(item, data_type, start_date, mappings=None):
+def build_document(item, data_type, start_date,
+                   mappings=None, idDimension=None):
     if data_type is None:
         raise ValueError("Must provide a data type")
     if mappings is None:
         mappings = {}
     period = "week"
 
-    (_id, human_id) = data_id(
-        data_type,
-        to_datetime(start_date),
-        period,
-        item.get('dimensions', {}).values())
+    if idDimension is not None:
+        (_id, human_id) = value_id(
+            item['dimensions'][idDimension])
+    else:
+        (_id, human_id) = data_id(
+            data_type,
+            to_datetime(start_date),
+            period,
+            item.get('dimensions', {}).values())
 
     base_properties = {
         "_id": _id,
@@ -137,8 +142,8 @@ def pretty_print(obj):
     return json.dumps(obj, indent=2)
 
 
-def build_document_set(results, data_type, mappings):
-    return [build_document(item, data_type, start, mappings)
+def build_document_set(results, data_type, mappings, idDimension=None):
+    return [build_document(item, data_type, start, mappings, idDimension)
             for start, item in results]
 
 
@@ -155,10 +160,12 @@ def query_documents_for(query, credentials, start_date, end_date):
     client = _create_client(credentials)
 
     mappings = query.get("mappings", {})
+    idDimension = query.get("idDimension", None)
 
     results = query_for_range(client, query["query"], start_date, end_date)
 
-    return build_document_set(results, query["dataType"], mappings)
+    return build_document_set(results, query["dataType"],
+                              mappings, idDimension)
 
 
 def send_records_for(query, credentials, start_date=None, end_date=None):

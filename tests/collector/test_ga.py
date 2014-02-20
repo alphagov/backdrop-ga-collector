@@ -61,7 +61,7 @@ def test_dimensions_are_optional_for_querying():
     }
     client = mock.Mock()
 
-    response = query_ga(client, config, date(2013, 4, 1), date(2013, 4, 7))
+    query_ga(client, config, date(2013, 4, 1), date(2013, 4, 7))
 
     client.query.get.assert_called_once_with(
         "123",
@@ -182,7 +182,9 @@ def test_build_document_with_multi_value_field_mappings():
 
     gapy_response = {
         "metrics": {"visits": "12345"},
-        "dimensions": {"multiValuesField": "first value:second value:third value"}
+        "dimensions": {
+            "multiValuesField": "first value:second value:third value"
+        }
     }
 
     doc = build_document(gapy_response, "multival", date(2013, 4, 1), mappings)
@@ -255,3 +257,13 @@ def test_build_document_set():
 @raises(ValueError)
 def test_build_document_fails_with_no_data_type():
     build_document({}, None, date(2012, 12, 12))
+
+
+def test_if_we_provide_id_field_it_is_used():
+    doc = build_document({"dimensions": {"idVar": "foo"},
+                          "metrics": {"some_metric": 123}},
+                         "data_type",
+                         date(2014, 2, 19),
+                         idDimension="idVar")
+
+    eq_(doc["_id"], "Zm9v")
