@@ -5,7 +5,7 @@ from hamcrest import assert_that, is_, has_entries, has_item, equal_to
 import mock
 from nose.tools import *
 from nose.tools import assert_is_instance
-from collector.ga import query_ga, build_document, data_id, apply_key_mapping, build_document_set, query_for_range, map_multi_value_fields
+from collector.ga import query_ga, build_document, data_id, apply_key_mapping, build_document_set, query_for_range, map_multi_value_fields, to_chunks
 from tests.collector import dt
 
 
@@ -267,3 +267,13 @@ def test_if_we_provide_id_field_it_is_used():
                          idDimension="idVar")
 
     eq_(doc["_id"], "Zm9v")
+
+
+def test_to_chunks():
+    docs = [1, 2, 3, 4, 5, 6, 7, 8]
+    chunked_docs = to_chunks(docs, 3)
+
+    eq_(len(chunked_docs), 3)
+    eq_(chunked_docs[0], [1, 2, 3])
+    eq_(chunked_docs[1], [4, 5, 6])
+    eq_(chunked_docs[2], [7, 8])

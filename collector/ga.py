@@ -40,22 +40,32 @@ def query_ga(client, config, start_date, end_date):
     )
 
 
-def send_data(documents, config):
-    if len(documents) == 0:
-        logging.info("No data returned with current configuration")
-        return
+def to_chunks(documents, size):
+    return [documents[i:i+size] for i in xrange(0, len(documents), size)]
+
+
+def send_chunk(chunk, config):
     url = config["url"]
-    documents = json.dumps(documents, cls=JSONEncoder, indent=1)
+    chunk = json.dumps(chunk, cls=JSONEncoder, indent=1)
     headers = {
         "Content-type": "application/json",
         "Authorization": "Bearer " + config["token"]
     }
 
-    response = requests.post(url, data=documents, headers=headers)
+    response = requests.post(url, data=chunk, headers=headers)
 
     logging.info("Received response:\n%s" % response.text)
 
     response.raise_for_status()
+
+
+def send_data(documents, config):
+    if len(documents) == 0:
+        logging.info("No data returned with current configuration")
+        return
+
+    for chunk in to_chunks(documents, 1000):
+        send_chunk(chunk, config)
 
 
 def _format(timestamp):
