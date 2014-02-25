@@ -1,5 +1,5 @@
-gapy==0.0.8
 python-dateutil==2.1
 pytz==2013d
 requests==1.2.3
+-e git+https://github.com/robyoung/gapy.git@master#egg=gapy
 -e git+https://github.com/alphagov/backdrop-collector.git@0.0.8#egg=backdrop-collector
