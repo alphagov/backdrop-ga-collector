@@ -64,7 +64,7 @@ A config is made up of four parts; the data type, the query, mappings and the ta
         "eventCategory_0": "categoryId",
         "eventCategory_1": "categoryLabel"
     },
-    "idDimension": "eventCategory",
+    "idMapping": "eventCategory",
     "target": {
         "url": "http://write.backdrop.dev.gov.uk/foo",
         "token": "foo-bearer-token"
@@ -86,9 +86,11 @@ Allows fields in the google analytics response to be mapped to other fields in t
 
 If a multi value field mapping is specified, the field will be split by the delimiter `:` and mapped accordingly. Example: given the field `key` has the value `foo:bar`, the mapping `key_0` will have the value of `foo` and `key_1` will have the value of `bar`.
 
-### Dimension as ID (`idDimension`)
+### Mapping dimensions as ID (`idMapping`)
 
-Allows you to configure one of the dimensions fields as the ID for the row, rather than the auto generated unique ID.
+Allows you to configure one or more of the dimensions fields as the ID for the row, rather than the auto generated unique ID.
+
+If you provide an array in the idMapping field it will concatinate the values of these dimensions as the key.
 
 ### Target (`target`)
 
