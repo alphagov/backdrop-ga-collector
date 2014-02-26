@@ -264,6 +264,16 @@ def test_if_we_provide_id_field_it_is_used():
                           "metrics": {"some_metric": 123}},
                          "data_type",
                          date(2014, 2, 19),
-                         idDimension="idVar")
+                         idMapping="idVar")
 
     eq_(doc["_id"], "Zm9v")
+
+
+def test_if_we_provide_id_field_array_it_is_used():
+    doc = build_document({"dimensions": {"a": u"1؁", "b": u"2"},
+                          "metrics": {"some_metric": "123"}},
+                         "data_type",
+                         date(2014, 2, 19),
+                         idMapping=["a", "b"])
+
+    eq_(doc["_id"], "MdiBMg==")

@@ -107,16 +107,21 @@ def apply_key_mapping(mapping, pairs):
 
 
 def build_document(item, data_type, start_date,
-                   mappings=None, idDimension=None):
+                   mappings=None, idMapping=None):
     if data_type is None:
         raise ValueError("Must provide a data type")
     if mappings is None:
         mappings = {}
     period = "week"
 
-    if idDimension is not None:
-        (_id, human_id) = value_id(
-            item['dimensions'][idDimension])
+    if idMapping is not None:
+        if isinstance(idMapping, list):
+            values_for_id = map(lambda d: item['dimensions'][d], idMapping)
+            value_for_id = "".join(values_for_id)
+        else:
+            value_for_id = item['dimensions'][idMapping]
+
+        (_id, human_id) = value_id(value_for_id)
     else:
         (_id, human_id) = data_id(
             data_type,
@@ -142,8 +147,8 @@ def pretty_print(obj):
     return json.dumps(obj, indent=2)
 
 
-def build_document_set(results, data_type, mappings, idDimension=None):
-    return [build_document(item, data_type, start, mappings, idDimension)
+def build_document_set(results, data_type, mappings, idMapping=None):
+    return [build_document(item, data_type, start, mappings, idMapping)
             for start, item in results]
 
 
@@ -160,12 +165,12 @@ def query_documents_for(query, credentials, start_date, end_date):
     client = _create_client(credentials)
 
     mappings = query.get("mappings", {})
-    idDimension = query.get("idDimension", None)
+    idMapping = query.get("idMapping", None)
 
     results = query_for_range(client, query["query"], start_date, end_date)
 
     return build_document_set(results, query["dataType"],
-                              mappings, idDimension)
+                              mappings, idMapping)
 
 
 def send_records_for(query, credentials, start_date=None, end_date=None):
