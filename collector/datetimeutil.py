@@ -17,7 +17,8 @@ def to_date(a_datetime):
     elif isinstance(a_datetime, date):
         return a_datetime
     else:
-        raise ValueError
+        raise ValueError("{0!r} ({1}) isn't a date or datetime"
+                         .format(a_datetime, type(a_datetime)))
 
 
 def to_utc(a_datetime):
@@ -29,7 +30,8 @@ def period_range(start_date, end_date):
     end_date = to_date(end_date) or a_week_ago()
 
     if start_date > end_date:
-        raise ValueError
+        raise ValueError("Bad period: !(start_date={0} <= end_date={1})"
+                         .format(start_date, end_date))
 
     if start_date.weekday != MONDAY:
         start_date = start_date - timedelta(days=start_date.weekday())
