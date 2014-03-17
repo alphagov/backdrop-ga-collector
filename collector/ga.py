@@ -69,9 +69,10 @@ def value_id(value):
 
 
 def data_id(data_type, timestamp, period, dimension_values):
-    human_id = "_".join(
-        [data_type, _format(timestamp), period] + dimension_values)
-    return value_id(human_id)
+    # `dimension_values` may be non-string python types and need to be coerced.
+    values = map(unicode, dimension_values)
+    slugs = [data_type, _format(timestamp), period] + values
+    return value_id("_".join(slugs))
 
 
 def map_one_to_one_fields(mapping, pairs):
