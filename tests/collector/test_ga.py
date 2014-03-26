@@ -3,8 +3,7 @@
 from datetime import date
 from hamcrest import assert_that, is_, has_entries, has_item, equal_to
 import mock
-from nose.tools import *
-from nose.tools import assert_is_instance
+from nose.tools import assert_is_instance, raises, eq_
 from collector.ga import (query_ga, build_document, data_id, apply_key_mapping,
                           build_document_set, query_for_range,
                           map_multi_value_fields)
