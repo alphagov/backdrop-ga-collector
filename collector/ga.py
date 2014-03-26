@@ -161,7 +161,7 @@ def query_for_range(client, query, period_start, period_end):
     return items
 
 
-def query_documents_for(query, client, start_date, end_date):
+def query_documents_for(client, query, start_date, end_date):
     results = query_for_range(client, query["query"], start_date, end_date)
 
     mappings = query.get("mappings", {})
@@ -173,6 +173,6 @@ def query_documents_for(query, client, start_date, end_date):
 def send_records_for(query, credentials, start_date=None, end_date=None):
     client = _create_client(credentials)
 
-    documents = query_documents_for(query, client, start_date, end_date)
+    documents = query_documents_for(client, query, start_date, end_date)
 
     send_data(documents, query["target"])
