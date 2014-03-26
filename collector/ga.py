@@ -105,7 +105,7 @@ def apply_key_mapping(mapping, pairs):
                 map_multi_value_fields(mapping, pairs).items())
 
 
-def build_document(item, data_type, start_date,
+def build_document(item, data_type,
                    mappings=None, idMapping=None):
     if data_type is None:
         raise ValueError("Must provide a data type")
@@ -124,13 +124,13 @@ def build_document(item, data_type, start_date,
     else:
         (_id, human_id) = data_id(
             data_type,
-            to_datetime(start_date),
+            to_datetime(item["start_date"]),
             period,
             item.get('dimensions', {}).values())
 
     base_properties = {
         "_id": _id,
-        "_timestamp": to_datetime(start_date),
+        "_timestamp": to_datetime(item["start_date"]),
         "humanId": human_id,
         "timeSpan": period,
         "dataType": data_type
@@ -147,8 +147,8 @@ def pretty_print(obj):
 
 
 def build_document_set(results, data_type, mappings, idMapping=None):
-    return [build_document(item, data_type, start, mappings, idMapping)
-            for start, item in results]
+    return [build_document(item, data_type, mappings, idMapping)
+            for item in results]
 
 
 def query_for_range(client, query, period_start, period_end):
@@ -156,7 +156,7 @@ def query_for_range(client, query, period_start, period_end):
     extend = items.extend
 
     for start, end in period_range(period_start, period_end):
-        extend((start, item) for item in query_ga(client, query, start, end))
+        extend(query_ga(client, query, start, end))
 
     return items
 
