@@ -76,9 +76,7 @@ def data_id(data_type, timestamp, period, dimension_values):
 
 
 def map_one_to_one_fields(mapping, pairs):
-    return dict(
-        [(mapping.get(key, key), value) for key, value in pairs.items()]
-    )
+    return dict((mapping.get(key, key), value) for key, value in pairs.items())
 
 
 def map_multi_value_fields(mapping, pairs):
@@ -155,26 +153,26 @@ def build_document_set(results, data_type, mappings, idMapping=None):
 
 def query_for_range(client, query, period_start, period_end):
     items = []
+    extend = items.extend
+
     for start, end in period_range(period_start, period_end):
-        items += [
-            (start, item) for item in query_ga(client, query, start, end)]
+        extend((start, item) for item in query_ga(client, query, start, end))
 
     return items
 
 
-def query_documents_for(query, credentials, start_date, end_date):
-    client = _create_client(credentials)
+def query_documents_for(client, query, start_date, end_date):
+    results = query_for_range(client, query["query"], start_date, end_date)
 
     mappings = query.get("mappings", {})
     idMapping = query.get("idMapping", None)
 
-    results = query_for_range(client, query["query"], start_date, end_date)
-
-    return build_document_set(results, query["dataType"],
-                              mappings, idMapping)
+    return build_document_set(results, query["dataType"], mappings, idMapping)
 
 
 def send_records_for(query, credentials, start_date=None, end_date=None):
-    documents = query_documents_for(query, credentials, start_date, end_date)
+    client = _create_client(credentials)
+
+    documents = query_documents_for(client, query, start_date, end_date)
 
     send_data(documents, query["target"])
