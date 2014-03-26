@@ -76,29 +76,42 @@ def test_dimensions_are_optional_for_querying():
 
 
 def test_query_for_range():
-    client = mock.Mock()
     query = {
         "id": "12345",
         "metrics": ["visits", "visitors"],
         "dimensions": ["dimension1", "dimension2"],
     }
-    response = {
+    expected_response_0 = {
         "visits": "1234",
         "visitors": "321",
         "dimension1": "value1",
         "dimension2": "value2",
+        "start_date": date(2013, 4, 1),
+        "end_date": date(2013, 4, 7),
     }
-    client.query.get.return_value = [response]
+    expected_response_1 = {
+        "visits": "2345",
+        "visitors": "5678",
+        "dimension1": "value1",
+        "dimension2": "value2",
+        "start_date": date(2013, 4, 8),
+        "end_date": date(2013, 4, 16),
+    }
+
+    client = mock.Mock()
+    client.query.get.side_effect = [[expected_response_0], [expected_response_1]]
 
     items = query_for_range(client, query, date(2013, 4, 1), date(2013, 4, 8))
 
+    from pprint import pprint
+    pprint(items)
+
     assert_that(len(items), is_(2))
 
-    assert_that(items[0][0], is_(date(2013, 4, 1)))
-    assert_that(items[0][1], equal_to(response))
+    response_0, response_1 = items
 
-    assert_that(items[1][0], is_(date(2013, 4, 8)))
-    assert_that(items[1][1], equal_to(response))
+    assert_that(response_0, is_(expected_response_0))
+    assert_that(response_1, is_(expected_response_1))
 
 
 def test_data_id():
@@ -127,10 +140,11 @@ def test_unicode_data_id():
 def test_build_document():
     gapy_response = {
         "metrics": {"visits": "12345"},
-        "dimensions": {"date": "2013-04-02"}
+        "dimensions": {"date": "2013-04-02"},
+        "start_date":  date(2013, 4, 1),
     }
 
-    data = build_document(gapy_response, "weeklyvisits", date(2013, 4, 1))
+    data = build_document(gapy_response, "weeklyvisits")
 
     assert_that(data, has_entries({
         "_id": "d2Vla2x5dmlzaXRzXzIwMTMwNDAxMDAwMDAwX3dlZWtfMjAxMy0wNC0wMg==",
@@ -145,10 +159,11 @@ def test_build_document():
 
 def test_build_document_no_dimensions():
     gapy_response = {
-        "metrics": {"visits": "12345", "visitors": "5376"}
+        "metrics": {"visits": "12345", "visitors": "5376"},
+        "start_date": date(2013, 4, 1),
     }
 
-    data = build_document(gapy_response, "foo", date(2013, 4, 1))
+    data = build_document(gapy_response, "foo")
 
     assert_that(data, has_entries({
         "_timestamp": dt(2013, 4, 1, 0, 0, 0, "UTC"),
@@ -165,9 +180,10 @@ def test_build_document_mappings_are_applied_to_dimensions():
     gapy_response = {
         "metrics": {"visits": "12345"},
         "dimensions": {"customVarValue1": "Jane"},
+        "start_date": date(2013, 4, 1),
     }
 
-    doc = build_document(gapy_response, "people", date(2013, 4, 1), mappings)
+    doc = build_document(gapy_response, "people",  mappings)
 
     assert_that(doc, has_entries({
         "name": "Jane"
@@ -186,10 +202,11 @@ def test_build_document_with_multi_value_field_mappings():
         "metrics": {"visits": "12345"},
         "dimensions": {
             "multiValuesField": "first value:second value:third value"
-        }
+        },
+        "start_date": date(2013, 4, 1),
     }
 
-    doc = build_document(gapy_response, "multival", date(2013, 4, 1), mappings)
+    doc = build_document(gapy_response, "multival", mappings)
 
     assert_that(doc, has_entries({
         "originalField": "first value:second value:third value",
@@ -222,19 +239,20 @@ def test_map_available_multi_value_fields():
 
 
 def test_build_document_set():
-    def build_gapy_response(visits, name):
+    def build_gapy_response(visits, name, start_date):
         return {
             "metrics": {"visits": visits},
-            "dimensions": {"customVarValue1": name}
+            "dimensions": {"customVarValue1": name},
+            "start_date": start_date,
         }
 
     mappings = {
         "customVarValue1": "name"
     }
     results = [
-        (date(2013, 4, 1), build_gapy_response("12345", "Jane")),
-        (date(2013, 4, 1), build_gapy_response("2313", "John")),
-        (date(2013, 4, 8), build_gapy_response("4323", "Joanne"))
+        build_gapy_response("12345", "Jane", date(2013, 4, 1)),
+        build_gapy_response("2313", "John", date(2013, 4, 1)),
+        build_gapy_response("4323", "Joanne", date(2013, 4, 8)),
     ]
     docs = build_document_set(results, "people", mappings)
 
@@ -258,14 +276,14 @@ def test_build_document_set():
 
 @raises(ValueError)
 def test_build_document_fails_with_no_data_type():
-    build_document({}, None, date(2012, 12, 12))
+    build_document({}, None)
 
 
 def test_if_we_provide_id_field_it_is_used():
     doc = build_document({"dimensions": {"idVar": "foo"},
-                          "metrics": {"some_metric": 123}},
+                          "metrics": {"some_metric": 123},
+                          "start_date": date(2014, 2, 19)},
                          "data_type",
-                         date(2014, 2, 19),
                          idMapping="idVar")
 
     eq_(doc["_id"], "Zm9v")
@@ -273,9 +291,9 @@ def test_if_we_provide_id_field_it_is_used():
 
 def test_if_we_provide_id_field_array_it_is_used():
     doc = build_document({"dimensions": {"a": u"1؁", "b": u"2"},
-                          "metrics": {"some_metric": "123"}},
+                          "metrics": {"some_metric": "123"},
+                          "start_date": date(2014, 2, 19)},
                          "data_type",
-                         date(2014, 2, 19),
                          idMapping=["a", "b"])
 
     eq_(doc["_id"], "MdiBMg==")
