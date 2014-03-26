@@ -101,7 +101,10 @@ def test_query_for_range():
     }
 
     client = mock.Mock()
-    client.query.get.side_effect = [[expected_response_0], [expected_response_1]]
+    client.query.get.side_effect = [
+        [expected_response_0],
+        [expected_response_1],
+    ]
 
     items = query_for_range(client, query, date(2013, 4, 1), date(2013, 4, 8))
 
@@ -305,7 +308,8 @@ def test_plugin():
 
     input_document = {
         "metrics": {"visits": "12345"},
-        "dimensions": {"date": "2013-04-02", "customVarValue9": "foo"}
+        "dimensions": {"date": "2013-04-02", "customVarValue9": "foo"},
+        "start_date": date(2013, 4, 1),
     }
 
     client = mock.Mock()
@@ -330,7 +334,10 @@ def test_plugin():
     assert_in("customVarValue9", result[0])
 
     # Add the plugin
-    config["plugins"] = ['RemoveKey("customVarValue9")']
+    config["plugins"] = [
+        'RemoveKey("customVarValue9")',
+        'ComputeIdFrom("date")',
+    ]
 
     # Check that plugin has desired effect
     result = query_documents_for(client, config, start, end)

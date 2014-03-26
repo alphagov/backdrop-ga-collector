@@ -168,13 +168,15 @@ def run_plugins(plugins_strings, results):
 def query_documents_for(client, query, start_date, end_date):
     results = query_for_range(client, query["query"], start_date, end_date)
 
-    if "plugins" in query:
-        results = run_plugins(query["plugins"], results)
-
     mappings = query.get("mappings", {})
     idMapping = query.get("idMapping", None)
 
-    return build_document_set(results, query["dataType"], mappings, idMapping)
+    docs = build_document_set(results, query["dataType"], mappings, idMapping)
+
+    if "plugins" in query:
+        docs = run_plugins(query["plugins"], docs)
+
+    return docs
 
 
 def send_records_for(query, credentials, start_date=None, end_date=None):
