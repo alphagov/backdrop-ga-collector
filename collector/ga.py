@@ -161,8 +161,15 @@ def query_for_range(client, query, period_start, period_end):
     return items
 
 
+def run_plugins(plugins_strings, results):
+    return NotImplemented
+
+
 def query_documents_for(client, query, start_date, end_date):
     results = query_for_range(client, query["query"], start_date, end_date)
+
+    if "plugins" in query:
+        results = run_plugins(query["plugins"], results)
 
     mappings = query.get("mappings", {})
     idMapping = query.get("idMapping", None)
