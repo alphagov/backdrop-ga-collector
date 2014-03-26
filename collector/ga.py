@@ -162,6 +162,23 @@ def query_for_range(client, query, period_start, period_end):
 
 
 def run_plugins(plugins_strings, results):
+
+    last_plugin = plugins_strings[-1]
+    if not last_plugin.startswith("ComputeIdFrom"):
+        raise RuntimeError("Last plugin must be `ComputeIdFrom` for now. This "
+                           "may be changed with further development if "
+                           "necessary")
+
+    # Import is here so that it is only required when "plugins" is specified
+    from backdrop.collector.plugins import load_plugins
+    plugins = load_plugins(plugins_strings)
+
+    # Plugins are designed so that their configuration is described in the
+    # plugin string. At this point, `plugin` should be a closure which only
+    # requires the documents to process.
+    for plugin in plugins:
+        results = plugin(results)
+
     return results
 
 
