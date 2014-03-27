@@ -96,6 +96,9 @@ If you provide an array in the idMapping field it will concatinate the values of
 
 The backdrop URL and bearer token that the records will be sent to.
 
+### Plugins (`plugins`)
+
+Plugins reside in the [`backdrop-collector-plugins`](https://github.com/alphagov/backdrop-collector-plugins) repository, and are documented over there.
 
 ## Run the config
 
