@@ -65,6 +65,11 @@ A config is made up of four parts; the data type, the query, mappings and the ta
         "eventCategory_1": "categoryLabel"
     },
     "idMapping": "eventCategory",
+    "plugins": [
+      "ComputeDepartmentKey('customVarValue9')",
+      "RemoveKey('customVarValue9')",
+      "AggregateKey(aggregate_count('visitors'))"
+    ],
     "target": {
         "url": "http://write.backdrop.dev.gov.uk/foo",
         "token": "foo-bearer-token"
@@ -97,6 +102,8 @@ If you provide an array in the idMapping field it will concatinate the values of
 The backdrop URL and bearer token that the records will be sent to.
 
 ### Plugins (`plugins`)
+
+Plugins are a list of [python expressions](http://docs.python.org/2/reference/expressions.html) (i.e, things that can be the body of a `lambda`) and enable arbitrary transformations to data coming from Google Analytics before it is pushed to backdrop. They are executed in the `backdrop.collector.plugins` namespace.
 
 Plugins reside in the [`backdrop-collector-plugins`](https://github.com/alphagov/backdrop-collector-plugins) repository, and are documented over there.
 
