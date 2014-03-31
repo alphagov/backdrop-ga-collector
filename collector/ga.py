@@ -161,13 +161,39 @@ def query_for_range(client, query, period_start, period_end):
     return items
 
 
+def run_plugins(plugins_strings, results):
+
+    last_plugin = plugins_strings[-1]
+    if not last_plugin.startswith("ComputeIdFrom"):
+        raise RuntimeError("Last plugin must be `ComputeIdFrom` for now. This "
+                           "may be changed with further development if "
+                           "necessary")
+
+    # Import is here so that it is only required when "plugins" is specified
+    from backdrop.collector.plugins import load_plugins
+    plugins = load_plugins(plugins_strings)
+
+    # Plugins are designed so that their configuration is described in the
+    # plugin string. At this point, `plugin` should be a closure which only
+    # requires the documents to process.
+    for plugin in plugins:
+        results = plugin(results)
+
+    return results
+
+
 def query_documents_for(client, query, start_date, end_date):
     results = query_for_range(client, query["query"], start_date, end_date)
 
     mappings = query.get("mappings", {})
     idMapping = query.get("idMapping", None)
 
-    return build_document_set(results, query["dataType"], mappings, idMapping)
+    docs = build_document_set(results, query["dataType"], mappings, idMapping)
+
+    if "plugins" in query:
+        docs = run_plugins(query["plugins"], docs)
+
+    return docs
 
 
 def send_records_for(query, credentials, start_date=None, end_date=None):

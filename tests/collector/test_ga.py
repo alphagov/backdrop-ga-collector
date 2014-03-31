@@ -2,12 +2,14 @@
 
 from datetime import date
 from hamcrest import assert_that, is_, has_entries, has_item, equal_to
+
 import mock
-from nose.tools import *
-from nose.tools import assert_is_instance
+
+from nose.tools import (assert_in, assert_not_in, assert_is_instance,
+                        raises, eq_)
 from collector.ga import (query_ga, build_document, data_id, apply_key_mapping,
                           build_document_set, query_for_range,
-                          map_multi_value_fields)
+                          query_documents_for, map_multi_value_fields)
 from tests.collector import dt
 
 
@@ -99,7 +101,10 @@ def test_query_for_range():
     }
 
     client = mock.Mock()
-    client.query.get.side_effect = [[expected_response_0], [expected_response_1]]
+    client.query.get.side_effect = [
+        [expected_response_0],
+        [expected_response_1],
+    ]
 
     items = query_for_range(client, query, date(2013, 4, 1), date(2013, 4, 8))
 
@@ -297,3 +302,44 @@ def test_if_we_provide_id_field_array_it_is_used():
                          idMapping=["a", "b"])
 
     eq_(doc["_id"], "MdiBMg==")
+
+
+def test_plugin():
+
+    input_document = {
+        "metrics": {"visits": "12345"},
+        "dimensions": {"date": "2013-04-02", "customVarValue9": "foo"},
+        "start_date": date(2013, 4, 1),
+    }
+
+    client = mock.Mock()
+    client.query.get.return_value = [
+        input_document,
+    ]
+
+    config = {
+        "query": {
+            "id": "ga:123",
+            "metrics": ["visits"],
+            "dimensions": ["date", "customVarValue9"],
+        },
+        "dataType": "test",
+    }
+
+    start, end = date(2013, 4, 1), date(2013, 4, 7)
+
+    # Check that without a plugin, we have customVarValue9.
+    result = query_documents_for(client, config, start, end)
+    (output_document,) = result
+    assert_in("customVarValue9", result[0])
+
+    # Add the plugin
+    config["plugins"] = [
+        'RemoveKey("customVarValue9")',
+        'ComputeIdFrom("date")',
+    ]
+
+    # Check that plugin has desired effect
+    result = query_documents_for(client, config, start, end)
+    (output_document,) = result
+    assert_not_in("customVarValue9", result[0])
