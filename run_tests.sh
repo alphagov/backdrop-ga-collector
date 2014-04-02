@@ -31,7 +31,7 @@ rm -f ".coverage"
 pip install -r requirements_for_tests.txt
 
 # run unit tests
-nosetests -v --with-xunit --with-coverage --cover-package=backdrop --xunit-file=$outdir/nosetests.xml
+nosetests -v --with-xunit --with-coverage --cover-package=collector --xunit-file=$outdir/nosetests.xml
 display_result $? 1 "Unit tests"
 python -m coverage.__main__ xml --include=collector* -o "$outdir/coverage.xml"
 
