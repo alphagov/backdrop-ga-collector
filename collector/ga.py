@@ -30,13 +30,26 @@ def query_ga(client, config, start_date, end_date):
     logging.info("Querying GA for data in the period: %s - %s"
                  % (str(start_date), str(end_date)))
 
+    # If maxResults is 0, don't include it in the query.
+    # Same for a sort == [].
+
+    maxResults = config.get("maxResults", None)
+    if maxResults == 0:
+        maxResults = None
+
+    sort = config.get("sort", None)
+    if sort == []:
+        sort = None
+
     return client.query.get(
         config["id"].replace("ga:", ""),
         start_date,
         end_date,
         config["metrics"],
         config.get("dimensions"),
-        config.get("filters")
+        config.get("filters"),
+        maxResults,
+        sort,
     )
 
 
