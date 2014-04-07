@@ -31,7 +31,9 @@ def test_query_ga_with_empty_response():
         date(2013, 4, 7),
         ["visits"],
         ["date"],
-        ["some-filter"]
+        ["some-filter"],
+        None,
+        None,
     )
 
     eq_(response, [])
@@ -53,7 +55,9 @@ def test_filters_are_optional_for_querying():
         date(2013, 4, 7),
         ["visits"],
         ["date"],
-        None
+        None,
+        None,
+        None,
     )
 
 
@@ -73,7 +77,9 @@ def test_dimensions_are_optional_for_querying():
         date(2013, 4, 7),
         ["visits"],
         None,
-        ["some-filter"]
+        ["some-filter"],
+        None,
+        None
     )
 
 
