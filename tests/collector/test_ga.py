@@ -349,3 +349,57 @@ def test_plugin():
     result = query_documents_for(client, config, start, end)
     (output_document,) = result
     assert_not_in("customVarValue9", result[0])
+
+
+def test_query_ga_with_sort():
+    config = {
+        "id": "ga:123",
+        "metrics": ["visits"],
+        "dimensions": ["date"],
+        "filters": ["some-filter"],
+        "sort": ["-foo"],
+    }
+    client = mock.Mock()
+    client.query.get.return_value = []
+
+    response = query_ga(client, config, date(2013, 4, 1), date(2013, 4, 7))
+
+    client.query.get.assert_called_once_with(
+        "123",
+        date(2013, 4, 1),
+        date(2013, 4, 7),
+        ["visits"],
+        ["date"],
+        ["some-filter"],
+        None,
+        ["-foo"],
+    )
+
+    eq_(response, [])
+
+
+def test_query_ga_with_maxresults():
+    config = {
+        "id": "ga:123",
+        "metrics": ["visits"],
+        "dimensions": ["date"],
+        "filters": ["some-filter"],
+        "maxResults": 1000,
+    }
+    client = mock.Mock()
+    client.query.get.return_value = []
+
+    response = query_ga(client, config, date(2013, 4, 1), date(2013, 4, 7))
+
+    client.query.get.assert_called_once_with(
+        "123",
+        date(2013, 4, 1),
+        date(2013, 4, 7),
+        ["visits"],
+        ["date"],
+        ["some-filter"],
+        1000,
+        None,
+    )
+
+    eq_(response, [])
