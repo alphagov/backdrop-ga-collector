@@ -404,8 +404,8 @@ def test_query_ga_with_maxresults():
 
     eq_(response, [])
 
-def test_additional_fields():
 
+def test_additional_fields():
 
     input_document = {
         "metrics": {"visits": "12345"},
