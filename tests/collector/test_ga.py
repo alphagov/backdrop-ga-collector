@@ -430,7 +430,8 @@ def test_additional_fields():
 
     start, end = date(2013, 4, 1), date(2013, 4, 7)
 
-    # Check that without a plugin, we have customVarValue9.
+    # Check that foo is set on the output document
     result = query_documents_for(client, config, start, end)
     (output_document,) = result
     assert_in("foo", result[0])
+    assert_that(result[0]["foo"], equal_to("bar"))
