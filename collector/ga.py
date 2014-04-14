@@ -203,6 +203,11 @@ def query_documents_for(client, query, start_date, end_date):
 
     docs = build_document_set(results, query["dataType"], mappings, idMapping)
 
+    if "additionalFields" in query:
+        additional_fields = query["additionalFields"]
+        for doc in docs:
+            doc.update(additional_fields)
+
     if "plugins" in query:
         docs = run_plugins(query["plugins"], docs)
 
