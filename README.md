@@ -70,6 +70,9 @@ A config is made up of four parts; the data type, the query, mappings and the ta
       "RemoveKey('customVarValue9')",
       "AggregateKey(aggregate_count('visitors'))"
     ],
+    "additionalFields": {
+        "department": "department-for-fooing-the-bar"
+    },
     "target": {
         "url": "http://write.backdrop.dev.gov.uk/foo",
         "token": "foo-bearer-token"
@@ -106,6 +109,11 @@ The backdrop URL and bearer token that the records will be sent to.
 Plugins are a list of [python expressions](http://docs.python.org/2/reference/expressions.html) (i.e, things that can be the body of a `lambda`) and enable arbitrary transformations to data coming from Google Analytics before it is pushed to backdrop. They are executed in the `backdrop.collector.plugins` namespace.
 
 Plugins reside in the [`backdrop-collector-plugins`](https://github.com/alphagov/backdrop-collector-plugins) repository, and are documented over there.
+
+### Additional fields to set as constant on the document (`additionalFields`)
+
+This can be used to set a value for all documents. Useful if there are multiple
+collectors writing to one bucket.
 
 ## Run the config
 

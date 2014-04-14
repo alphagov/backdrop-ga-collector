@@ -403,3 +403,34 @@ def test_query_ga_with_maxresults():
     )
 
     eq_(response, [])
+
+def test_additional_fields():
+
+
+    input_document = {
+        "metrics": {"visits": "12345"},
+        "dimensions": {"date": "2013-04-02", "customVarValue9": "foo"},
+        "start_date": date(2013, 4, 1),
+    }
+
+    client = mock.Mock()
+    client.query.get.return_value = [
+        input_document,
+    ]
+
+    config = {
+        "query": {
+            "id": "ga:123",
+            "metrics": ["visits"],
+            "dimensions": ["date", "customVarValue9"],
+        },
+        "dataType": "test",
+        "additionalFields": {"foo": "bar"},
+    }
+
+    start, end = date(2013, 4, 1), date(2013, 4, 7)
+
+    # Check that without a plugin, we have customVarValue9.
+    result = query_documents_for(client, config, start, end)
+    (output_document,) = result
+    assert_in("foo", result[0])
