@@ -1,6 +1,6 @@
 from backdrop.collector.plugins.department import try_get_department
 
-from collector.ga import _create_client, query_documents_for
+from collector.ga import _create_client, query_documents_for, send_data
 from collector.jsonencoder import JSONEncoder
 
 import os
@@ -12,8 +12,6 @@ def main(args):
     query = args.query
 
     assert "filtersets" in query, "`filtersets` must be specified"
-    assert "filters" not in query["query"], (
-        "`filters` must not be specified in query")
 
     documents = []
 
@@ -53,9 +51,9 @@ def main(args):
 
     # print len(documents)
     # from pprint import pprint
-    from json import dumps
+    # from json import dumps
 
-    print(dumps(documents, cls=JSONEncoder, indent=1))
+    # print(dumps(documents, cls=JSONEncoder, indent=1))
 
 
-    # send_data(documents, query["target"])
+    send_data(documents, query["target"])
