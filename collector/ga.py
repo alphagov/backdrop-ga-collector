@@ -151,7 +151,19 @@ def build_document(item, data_type,
     dimensions = apply_key_mapping(
         mappings,
         item.get("dimensions", {})).items()
-    metrics = [(key, int(value)) for key, value in item["metrics"].items()]
+
+    def try_numberify(value):
+        for cast_function in [int, float]:
+            try:
+                return cast_function(value)
+            except ValueError:
+                pass
+
+        raise ValueError("Unable to use value as int or float: {0!r}"
+                         .format(value))
+
+    metrics = [(key, try_numberify(value))
+               for key, value in item["metrics"].items()]
     return dict(base_properties.items() + dimensions + metrics)
 
 
