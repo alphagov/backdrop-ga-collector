@@ -22,7 +22,7 @@ setup(
     maintainer='Government Digital Service',
     url='https://github.com/alphagov/backdrop-ga-collector',
 
-    description='backdrop-ga-collector: send google analytics data to backdrop',
+    description='backdrop-ga-collector send google analytics data to backdrop',
     license='MIT',
     keywords='api data performance_platform',
 

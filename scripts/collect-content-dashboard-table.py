@@ -14,7 +14,7 @@ if __name__ == '__main__':
     logfile_path = os.path.join(repo_root, 'log')
 
     logging.basicConfig(level=logging.DEBUG)
-    # set_up_logging('ga_collector_contrib_content', logging.INFO, logfile_path)
+    set_up_logging('ga_collector_contrib_content', logging.INFO, logfile_path)
 
     # FIXME I do not condone path injection hacks like this. I would prefer if
     # this was setuptools-installed, but current consensus is that fixing this

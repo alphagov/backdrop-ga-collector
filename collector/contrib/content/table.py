@@ -53,18 +53,4 @@ def main(args):
 
         documents.extend(ds)
 
-    # from pprint import pprint
-    # pprint(documents)
-
-    # return
-
-    # documents =
-
-    # print len(documents)
-    # from pprint import pprint
-    # from json import dumps
-
-    # print(dumps(documents, cls=JSONEncoder, indent=1))
-
-
     send_data(documents, query["target"])
