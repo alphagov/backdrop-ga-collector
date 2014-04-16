@@ -19,9 +19,20 @@ def main(args):
 
     from pprint import pprint
 
+    def insert_ga(filters):
+        # Insert ga: on everything but the first.
+        def gen():
+            for i, f in enumerate(filters):
+                if i == 0:
+                    yield f
+                else:
+                    yield "ga:" + f
+
+        return list(gen())
+
     for filters in query["filtersets"]:
-        print "Query:", filters
-        query["query"]["filters"] = original_filters + filters
+        all_filters = insert_ga(original_filters + filters)
+        query["query"]["filters"] = [";".join(all_filters)]
 
         pprint(query)
 
