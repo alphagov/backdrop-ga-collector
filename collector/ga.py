@@ -118,6 +118,22 @@ def apply_key_mapping(mapping, pairs):
                 map_multi_value_fields(mapping, pairs).items())
 
 
+def try_number(value):
+    """
+    Attempt to cast the string `value` to an int, and failing that, a float,
+    failing that, raise a ValueError.
+    """
+
+    for cast_function in [int, float]:
+        try:
+            return cast_function(value)
+        except ValueError:
+            pass
+
+    raise ValueError("Unable to use value as int or float: {0!r}"
+                     .format(value))
+
+
 def build_document(item, data_type,
                    mappings=None, idMapping=None):
     if data_type is None:
@@ -151,7 +167,9 @@ def build_document(item, data_type,
     dimensions = apply_key_mapping(
         mappings,
         item.get("dimensions", {})).items()
-    metrics = [(key, int(value)) for key, value in item["metrics"].items()]
+
+    metrics = [(key, try_number(value))
+               for key, value in item["metrics"].items()]
     return dict(base_properties.items() + dimensions + metrics)
 
 
