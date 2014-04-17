@@ -114,9 +114,6 @@ def test_query_for_range():
 
     items = query_for_range(client, query, date(2013, 4, 1), date(2013, 4, 8))
 
-    from pprint import pprint
-    pprint(items)
-
     assert_that(len(items), is_(2))
 
     response_0, response_1 = items
@@ -435,3 +432,31 @@ def test_additional_fields():
     (output_document,) = result
     assert_in("foo", result[0])
     assert_that(result[0]["foo"], equal_to("bar"))
+
+
+def test_float_number():
+    query = {
+        "id": "12345",
+        "metrics": ["rate"],
+        "dimensions": [],
+    }
+    expected_response_0 = {
+        "start_date": date(2013, 4, 1),
+        "end_date": date(2013, 4, 7),
+        "metrics": {"rate": "23.4"},
+    }
+
+    client = mock.Mock()
+    client.query.get.side_effect = [
+        [expected_response_0],
+    ]
+
+    items = query_for_range(client, query, date(2013, 4, 1), date(2013, 4, 7))
+
+    assert_that(len(items), is_(1))
+    (response_0,) = items
+    assert_that(response_0, is_(expected_response_0))
+
+    (doc_0,) = build_document_set(items, "", None, None)
+
+    assert_that(doc_0['rate'], is_(23.4))
