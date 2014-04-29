@@ -5,7 +5,7 @@
 
 [![Dependency Status](https://gemnasium.com/alphagov/backdrop-ga-collector.png)](https://gemnasium.com/alphagov/backdrop-ga-collector)
 
-Query Google Analytics data and send records to a [backdrop](https://github.com/alphagov/backdrop) bucket.
+Query Google Analytics data and send records to a [backdrop](https://github.com/alphagov/backdrop) data-set.
 
 
 ## Install dependencies
@@ -113,7 +113,7 @@ Plugins reside in the [`backdrop-collector-plugins`](https://github.com/alphagov
 ### Additional fields to set as constant on the document (`additionalFields`)
 
 This can be used to set a value for all documents. Useful if there are multiple
-collectors writing to one bucket.
+collectors writing to one data-set.
 
 ## Run the config
 
