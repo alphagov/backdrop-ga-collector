@@ -1,0 +1,4 @@
+--ignore-dir=venv
+--ignore-dir=src
+--ignore-dir=build
+--ignore-dir=log
