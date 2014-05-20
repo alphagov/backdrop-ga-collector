@@ -4,3 +4,6 @@ config/
 .idea
 .coverage
 out/
+venv/
+src/
+build/
